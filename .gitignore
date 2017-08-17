@@ -1,0 +1,8 @@
+/.idea
+/build
+
+.DS_Store
+/netatmobeat
+/netatmobeat.test
+*.pyc
+netatmobeat.iml

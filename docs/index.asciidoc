@@ -1,0 +1,5 @@
+= Netatmobeat Docs
+
+Welcome to the Netatmobeat documentation.
+
+
