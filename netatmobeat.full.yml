@@ -4,7 +4,15 @@
 
 netatmobeat:
   # Defines how often an event is sent to the output
-  period: 1s
+  period: 60s
+
+# Authentication configuration
+  client_id: "599d72a5b05a215f738babc7"
+  client_secret: "E8WKWjQtoboO7HemQ2bfwMVZJGAohwXkOpCKsSlKjeJp"
+
+  #username/password to your https://dev.netatmo.com account
+  username: "user@email"
+  password: "password"
 
 #================================ General ======================================
 
