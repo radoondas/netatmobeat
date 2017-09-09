@@ -6,3 +6,4 @@
 /netatmobeat.test
 *.pyc
 netatmobeat.iml
+/logs/
