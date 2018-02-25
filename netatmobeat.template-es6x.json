@@ -36,8 +36,8 @@
             }
           }
         },
-        "counter": {
-          "type": "long"
+        "mark": {
+          "type": "short"
         },
         "meta": {
           "properties": {
@@ -70,6 +70,28 @@
               }
             }
           }
+        },
+        "place": {
+          "properties": {
+            "altitude": {
+              "type": "short"
+            },
+            "location": {
+              "type": "geo_point"
+            },
+            "timezone": {
+              "ignore_above": 1024,
+              "type": "keyword"
+            }
+          }
+        },
+        "source_type": {
+          "ignore_above": 1024,
+          "type": "keyword"
+        },
+        "station_id": {
+          "ignore_above": 1024,
+          "type": "keyword"
         },
         "tags": {
           "ignore_above": 1024,

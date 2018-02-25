@@ -9,7 +9,7 @@ Ensure that this folder is at the following location:
 
 ### Requirements
 
-* [Golang](https://golang.org/dl/) 1.7
+* [Golang](https://golang.org/dl/) 1.9
 
 ### Init Project
 To get running with Netatmobeat and also install the

@@ -3,9 +3,15 @@
 package common
 
 import (
+	"encoding/json"
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zapcore"
+
+	"github.com/elastic/beats/libbeat/logp"
 )
 
 func TestMapStrUpdate(t *testing.T) {
@@ -23,6 +29,48 @@ func TestMapStrUpdate(t *testing.T) {
 	a.Update(b)
 
 	assert.Equal(a, MapStr{"a": 1, "b": 3, "c": 4})
+}
+
+func TestMapStrDeepUpdate(t *testing.T) {
+	tests := []struct {
+		a, b, expected MapStr
+	}{
+		{
+			MapStr{"a": 1},
+			MapStr{"b": 2},
+			MapStr{"a": 1, "b": 2},
+		},
+		{
+			MapStr{"a": 1},
+			MapStr{"a": 2},
+			MapStr{"a": 2},
+		},
+		{
+			MapStr{"a": 1},
+			MapStr{"a": MapStr{"b": 1}},
+			MapStr{"a": MapStr{"b": 1}},
+		},
+		{
+			MapStr{"a": MapStr{"b": 1}},
+			MapStr{"a": MapStr{"c": 2}},
+			MapStr{"a": MapStr{"b": 1, "c": 2}},
+		},
+		{
+			MapStr{"a": MapStr{"b": 1}},
+			MapStr{"a": 1},
+			MapStr{"a": 1},
+		},
+	}
+
+	for i, test := range tests {
+		a, b, expected := test.a, test.b, test.expected
+		name := fmt.Sprintf("%v: %v + %v = %v", i, a, b, expected)
+
+		t.Run(name, func(t *testing.T) {
+			a.DeepUpdate(b)
+			assert.Equal(t, expected, a)
+		})
+	}
 }
 
 func TestMapStrUnion(t *testing.T) {
@@ -347,7 +395,7 @@ func TestAddTag(t *testing.T) {
 				"tags": []string{"json"},
 			},
 		},
-		// Existing tags, appends
+		// Existing tags is a []string, appends
 		{
 			Event: MapStr{
 				"tags": []string{"json"},
@@ -357,7 +405,17 @@ func TestAddTag(t *testing.T) {
 				"tags": []string{"json", "docker"},
 			},
 		},
-		// Existing tags is not a []string
+		// Existing tags is a []interface{}, appends
+		{
+			Event: MapStr{
+				"tags": []interface{}{"json"},
+			},
+			Tags: []string{"docker"},
+			Output: MapStr{
+				"tags": []interface{}{"json", "docker"},
+			},
+		},
+		// Existing tags is not a []string or []interface{}
 		{
 			Event: MapStr{
 				"tags": "not a slice",
@@ -378,5 +436,136 @@ func TestAddTag(t *testing.T) {
 		} else {
 			assert.NoError(t, err)
 		}
+	}
+}
+
+func TestFlatten(t *testing.T) {
+	type data struct {
+		Event    MapStr
+		Expected MapStr
+	}
+	tests := []data{
+		{
+			Event: MapStr{
+				"hello": MapStr{
+					"world": 15,
+				},
+			},
+			Expected: MapStr{
+				"hello.world": 15,
+			},
+		},
+		{
+			Event: MapStr{
+				"test": 15,
+			},
+			Expected: MapStr{
+				"test": 15,
+			},
+		},
+		{
+			Event: MapStr{
+				"test": 15,
+				"hello": MapStr{
+					"world": MapStr{
+						"ok": "test",
+					},
+				},
+				"elastic": MapStr{
+					"for": "search",
+				},
+			},
+			Expected: MapStr{
+				"test":           15,
+				"hello.world.ok": "test",
+				"elastic.for":    "search",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		assert.Equal(t, test.Expected, test.Event.Flatten())
+	}
+}
+
+func BenchmarkMapStrFlatten(b *testing.B) {
+	m := MapStr{
+		"test": 15,
+		"hello": MapStr{
+			"world": MapStr{
+				"ok": "test",
+			},
+		},
+		"elastic": MapStr{
+			"for": "search",
+		},
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = m.Flatten()
+	}
+}
+
+// Ensure the MapStr is marshaled in logs the same way it is by json.Marshal.
+func TestMapStrJSONLog(t *testing.T) {
+	logp.DevelopmentSetup(logp.ToObserverOutput())
+
+	m := MapStr{
+		"test": 15,
+		"hello": MapStr{
+			"world": MapStr{
+				"ok": "test",
+			},
+		},
+		"elastic": MapStr{
+			"for": "search",
+		},
+	}
+
+	data, err := json.Marshal(MapStr{"m": m})
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedJSON := string(data)
+
+	logp.NewLogger("test").Infow("msg", "m", m)
+	logs := logp.ObserverLogs().TakeAll()
+	if assert.Len(t, logs, 1) {
+		log := logs[0]
+
+		// Encode like zap does.
+		e := zapcore.NewJSONEncoder(zapcore.EncoderConfig{})
+		buf, err := e.EncodeEntry(log.Entry, log.Context)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// Zap adds a newline to end the JSON object.
+		actualJSON := strings.TrimSpace(buf.String())
+
+		assert.Equal(t, string(expectedJSON), actualJSON)
+	}
+}
+
+func BenchmarkMapStrLogging(b *testing.B) {
+	logp.DevelopmentSetup(logp.ToDiscardOutput())
+	logger := logp.NewLogger("benchtest")
+
+	m := MapStr{
+		"test": 15,
+		"hello": MapStr{
+			"world": MapStr{
+				"ok": "test",
+			},
+		},
+		"elastic": MapStr{
+			"for": "search",
+		},
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		logger.Infow("test", "mapstr", m)
 	}
 }

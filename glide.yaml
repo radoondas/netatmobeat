@@ -1,0 +1,4 @@
+package: github.com/radoondas/netatmobeat
+import:
+- package: github.com/elastic/beats
+  version: v6.2.3

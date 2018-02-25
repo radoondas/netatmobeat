@@ -2,7 +2,6 @@ package image
 
 import (
 	"github.com/elastic/beats/libbeat/common"
-	"github.com/elastic/beats/libbeat/logp"
 	"github.com/elastic/beats/metricbeat/mb"
 	"github.com/elastic/beats/metricbeat/module/docker"
 
@@ -30,9 +29,6 @@ type MetricSet struct {
 // Part of new is also setting up the configuration by processing additional
 // configuration entries if needed.
 func New(base mb.BaseMetricSet) (mb.MetricSet, error) {
-
-	logp.Warn("BETA: The docker info metricset is beta")
-
 	config := docker.Config{}
 	if err := base.Module().UnpackConfig(&config); err != nil {
 		return nil, err
@@ -53,7 +49,6 @@ func New(base mb.BaseMetricSet) (mb.MetricSet, error) {
 // It returns the event which is then forward to the output. In case of an error, a
 // descriptive error must be returned.
 func (m *MetricSet) Fetch() ([]common.MapStr, error) {
-
 	images, err := m.dockerClient.ListImages(dc.ListImagesOptions{})
 	if err != nil {
 		return nil, err

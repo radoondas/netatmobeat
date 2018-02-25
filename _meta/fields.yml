@@ -2,8 +2,39 @@
   title: netatmobeat
   description:
   fields:
-    - name: counter
-      type: long
+    - name: station_id
+      type: keyword
       required: true
       description: >
-        PLEASE UPDATE DOCUMENTATION
+        Station id
+    - name: mark
+      type: short
+      required: true
+      description: >
+        Mark
+    - name: source_type
+      type: keyword
+      required: true
+      description: >
+        Tye of the data source
+    - name: place
+      type: group
+      description: >
+        `place` - location of weather station
+      fields:
+        - name: timezone
+          type: keyword
+          description: >
+            Timezone
+        - name: altitude
+          type: short
+          description: >
+            Altitude
+        - name: location
+          type: geo_point
+          description: >
+            GEO location
+        - name: location222
+          type: geo_point
+          description: >
+            GEO location
