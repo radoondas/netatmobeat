@@ -28,56 +28,58 @@ https://github.com/elastic/beats/compare/1035569addc4a3b29ffa14f8a08c27c1ace16ef
 
 *Functionbeat*
 
-- Correctly normalize Cloudformation resource name. {issue}10087[10087]
-
 ==== Bugfixes
 
 *Affecting all Beats*
 
-- Fix registry handle leak on Windows (https://github.com/elastic/go-sysinfo/pull/33). {pull}9920[9920]
-- Gracefully handle TLS options when enrolling a Beat. {issue}9129[9129]
-- Allow to unenroll a Beat from the UI. {issue}9452[9452]
-- The backing off now implements jitter to better distribute the load. {issue}10172[10172]
-- Fix config appender registration. {pull}9873[9873]
-- Fix TLS certificate DoS vulnerability. {pull}10304[10304]
+- Fix stopping of modules started by kubernetes autodiscover. {pull}10476[10476]
 
 *Auditbeat*
 
+- Enable System module config on Windows. {pull}10237[10237]
+
 *Filebeat*
 
-- Support IPv6 addresses with zone id in IIS ingest pipeline. {issue}9836[9836] error log: {pull}9869[9869] access log: {pull}10030[10030]
-- Support haproxy log lines without captured headers. {issue}9463[9463] {pull}9958[9958]
+- Fix bad bytes count in `docker` input when filtering by stream. {pull}10211[10211]
+- Add `convert_timezone` option to Logstash module to convert dates to UTC. {issue}9756[9756] {pull}9797[9797]
+- Add `convert_timezone` option to Elasticsearch module to convert dates to UTC. {issue}9756[9756] {pull}9761[9761]
+- Make elasticsearch/audit fileset be more lenient in parsing node name. {issue}10035[10035] {pull}10135[10135]
 
 *Heartbeat*
 
 *Journalbeat*
 
+- Fix fields.yml indentation of audit group which had the effect of creating an incomplete Elasticsearch index template. {pull}10556[10556]
+
 *Metricbeat*
 
-- Fix panics in vsphere module when certain values where not returned by the API. {pull}9784[9784]
-- Fix pod UID metadata enrichment in Kubernetes module. {pull}10081[10081]
+- Fix issue with `elasticsearch/node_stats` metricset (x-pack) not indexing `source_node` field. {pull}10639[10639]
 
 *Packetbeat*
 
-- Fix DHCPv4 dashboard that wouldn't load in Kibana. {issue}9850[9850]
+- Fixed a crash when using af_packet capture {pull}10477[10477]
 
 *Winlogbeat*
 
 *Functionbeat*
 
+- Ensure that functionbeat is logging at info level not debug. {issue}10262[10262]
+
 ==== Added
 
 *Affecting all Beats*
-
-- Release Jolokia autodiscover as GA. {pull}9706[9706]
 
 *Auditbeat*
 
 *Filebeat*
 
+- Teach elasticsearch/audit fileset to parse out some more fields. {issue}10134[10134] {pull}10137[10137]
+
 *Heartbeat*
 
 *Journalbeat*
+
+- Migrate registry from previously incorrect path. {pull}10486[10486]
 
 *Metricbeat*
 
