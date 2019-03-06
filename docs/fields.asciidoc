@@ -542,12 +542,18 @@ Kubernetes container image
 --
 
 [[exported-fields-netatmo]]
-== netatmobeat fields
+== Netatmobeat fields
 
 None
 
 
-*`station_id`*::
+[float]
+== netatmo fields
+
+aa
+
+
+*`netatmo.station_id`*::
 +
 --
 type: keyword
@@ -559,7 +565,7 @@ Station id
 
 --
 
-*`mark`*::
+*`netatmo.mark`*::
 +
 --
 type: short
@@ -571,7 +577,7 @@ Mark
 
 --
 
-*`source_type`*::
+*`netatmo.source_type`*::
 +
 --
 type: keyword
@@ -590,7 +596,7 @@ Tye of the data source
 
 
 
-*`place.timezone`*::
+*`netatmo.place.timezone`*::
 +
 --
 type: keyword
@@ -600,7 +606,7 @@ Timezone
 
 --
 
-*`place.altitude`*::
+*`netatmo.place.altitude`*::
 +
 --
 type: float
@@ -610,7 +616,7 @@ Altitude
 
 --
 
-*`place.location`*::
+*`netatmo.place.location`*::
 +
 --
 type: geo_point
@@ -620,7 +626,7 @@ GEO location
 
 --
 
-*`place.city`*::
+*`netatmo.place.city`*::
 +
 --
 type: keyword
@@ -630,7 +636,7 @@ City
 
 --
 
-*`place.country`*::
+*`netatmo.place.country`*::
 +
 --
 type: keyword
@@ -661,7 +667,7 @@ Temperature
 
 
 
-*`publicdata.measures.temperature.timestamp`*::
+*`netatmo.publicdata.measures.temperature.timestamp`*::
 +
 --
 type: date
@@ -670,7 +676,7 @@ Timestamp
 
 --
 
-*`publicdata.measures.temperature.value`*::
+*`netatmo.publicdata.measures.temperature.value`*::
 +
 --
 type: float
@@ -679,7 +685,7 @@ Value
 
 --
 
-*`publicdata.measures.temperature.moduleId`*::
+*`netatmo.publicdata.measures.temperature.moduleId`*::
 +
 --
 type: keyword
@@ -695,7 +701,7 @@ Humidity
 
 
 
-*`publicdata.measures.humidity.timestamp`*::
+*`netatmo.publicdata.measures.humidity.timestamp`*::
 +
 --
 type: date
@@ -704,7 +710,7 @@ Timestamp
 
 --
 
-*`publicdata.measures.humidity.value`*::
+*`netatmo.publicdata.measures.humidity.value`*::
 +
 --
 type: float
@@ -713,7 +719,7 @@ Value
 
 --
 
-*`publicdata.measures.humidity.moduleId`*::
+*`netatmo.publicdata.measures.humidity.moduleId`*::
 +
 --
 type: keyword
@@ -729,7 +735,7 @@ Pressure
 
 
 
-*`publicdata.measures.pressure.timestamp`*::
+*`netatmo.publicdata.measures.pressure.timestamp`*::
 +
 --
 type: date
@@ -738,7 +744,7 @@ Timestamp
 
 --
 
-*`publicdata.measures.pressure.value`*::
+*`netatmo.publicdata.measures.pressure.value`*::
 +
 --
 type: float
@@ -747,7 +753,7 @@ Value
 
 --
 
-*`publicdata.measures.pressure.moduleId`*::
+*`netatmo.publicdata.measures.pressure.moduleId`*::
 +
 --
 type: keyword
@@ -763,7 +769,7 @@ Rain
 
 
 
-*`publicdata.measures.rain.timestamp`*::
+*`netatmo.publicdata.measures.rain.timestamp`*::
 +
 --
 type: date
@@ -772,7 +778,7 @@ Timestamp
 
 --
 
-*`publicdata.measures.rain.moduleId`*::
+*`netatmo.publicdata.measures.rain.moduleId`*::
 +
 --
 type: keyword
@@ -781,7 +787,7 @@ Module ID
 
 --
 
-*`publicdata.measures.rain.rain_24h`*::
+*`netatmo.publicdata.measures.rain.rain_24h`*::
 +
 --
 type: float
@@ -790,7 +796,7 @@ Rain 24 hours
 
 --
 
-*`publicdata.measures.rain.rain_60min`*::
+*`netatmo.publicdata.measures.rain.rain_60min`*::
 +
 --
 type: float
@@ -799,7 +805,7 @@ Rain 60 minutes
 
 --
 
-*`publicdata.measures.rain.rain_live`*::
+*`netatmo.publicdata.measures.rain.rain_live`*::
 +
 --
 type: float
@@ -815,7 +821,7 @@ Wind
 
 
 
-*`publicdata.measures.wind.timestamp`*::
+*`netatmo.publicdata.measures.wind.timestamp`*::
 +
 --
 type: date
@@ -824,7 +830,7 @@ Timestamp
 
 --
 
-*`publicdata.measures.wind.moduleId`*::
+*`netatmo.publicdata.measures.wind.moduleId`*::
 +
 --
 type: keyword
@@ -833,7 +839,7 @@ Module ID
 
 --
 
-*`publicdata.measures.wind.windAngle`*::
+*`netatmo.publicdata.measures.wind.windAngle`*::
 +
 --
 type: float
@@ -842,7 +848,7 @@ Wind angle
 
 --
 
-*`publicdata.measures.wind.windStrength`*::
+*`netatmo.publicdata.measures.wind.windStrength`*::
 +
 --
 type: float
@@ -851,7 +857,7 @@ Wind strength
 
 --
 
-*`publicdata.measures.wind.gustStrength`*::
+*`netatmo.publicdata.measures.wind.gustStrength`*::
 +
 --
 type: float
@@ -860,7 +866,7 @@ Gust strength
 
 --
 
-*`publicdata.measures.wind.gustAngle`*::
+*`netatmo.publicdata.measures.wind.gustAngle`*::
 +
 --
 type: float

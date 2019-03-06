@@ -4,6 +4,8 @@ import (
 	"os"
 
 	"github.com/radoondas/netatmobeat/cmd"
+
+	 _ "github.com/radoondas/netatmobeat/include"
 )
 
 func main() {

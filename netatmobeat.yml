@@ -4,16 +4,20 @@
 
 netatmobeat:
   # Defines how often an event is sent to the output
+  # 10 minutes is preferred time frame to query new data
   period: 10m
 
   # Authentication configuration
+  # Create application in https://dev.netatmo.com and paste values for authorisation
   client_id: "abcdefghijklmn"
   client_secret: "mysecretfromapp"
 
-  # username/password to your https://dev.netatmo.com account
+  # username/password to your https://dev.netatmo.com account for authentication
   username: "user@email"
   password: "password"
 
+  # Public weather configuration. Define regions you want to gather data from. Regions are not exact shapes in terms of
+  # response as they are provided from Netatmo cache.
   public_weather:
     enabled: true
     regions:
@@ -42,7 +46,7 @@ netatmobeat:
         lon_sw: -119.817889
       - region:
         enabled: true
-        name: "Canada"
+        name: "Canada 2"
         description: "Somewhere in Canada"
         lat_ne: 59.991157
         lon_ne: -94.813006
@@ -57,9 +61,10 @@ netatmobeat:
         lat_sw: 18.789029
         lon_sw: -160.756554
 
+  # Feature not implemented yet and disabled in code
   weather_stations:
     enabled: false
-    ids: [ "70:ee:50:28:90:aa" ]
+    ids: [ "st:at:io:ni:dd" ]
 
 #================================ General =====================================
 

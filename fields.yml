@@ -1,142 +1,146 @@
 - key: netatmo
-  title: netatmobeat
+  title: Netatmobeat
   description:
   fields:
-    - name: station_id
-      type: keyword
-      required: true
-      description: >
-        Station id
-    - name: mark
-      type: short
-      required: true
-      description: >
-        Mark
-    - name: source_type
-      type: keyword
-      required: true
-      description: >
-        Tye of the data source
-    - name: place
+    - name: netatmo
       type: group
-      description: >
-        `place` - location of weather station
+      description: aa
       fields:
-        - name: timezone
+        - name: station_id
           type: keyword
+          required: true
           description: >
-            Timezone
-        - name: altitude
-          type: float
+            Station id
+        - name: mark
+          type: short
+          required: true
           description: >
-            Altitude
-        - name: location
-          type: geo_point
-          description: >
-            GEO location
-        - name: city
+            Mark
+        - name: source_type
           type: keyword
+          required: true
           description: >
-            City
-        - name: country
-          type: keyword
-          description: >
-            Country
-    - name: publicdata
-      type: group
-      description: >
-        Publicdata
-      fields:
-        - name: measures
+            Tye of the data source
+        - name: place
           type: group
           description: >
-            measures
+            `place` - location of weather station
           fields:
-            - name: temperature
+            - name: timezone
+              type: keyword
+              description: >
+                Timezone
+            - name: altitude
+              type: float
+              description: >
+                Altitude
+            - name: location
+              type: geo_point
+              description: >
+                GEO location
+            - name: city
+              type: keyword
+              description: >
+                City
+            - name: country
+              type: keyword
+              description: >
+                Country
+        - name: publicdata
+          type: group
+          description: >
+            Publicdata
+          fields:
+            - name: measures
               type: group
               description: >
-                Temperature
+                measures
               fields:
-                - name: timestamp
-                  type: date
-                  description: Timestamp
-                - name: value
-                  type: float
-                  description: Value
-                - name: moduleId
-                  type: keyword
-                  description: Module ID
-            - name: humidity
-              type: group
-              description: >
-                Humidity
-              fields:
-                - name: timestamp
-                  type: date
-                  description: Timestamp
-                - name: value
-                  type: float
-                  description: Value
-                - name: moduleId
-                  type: keyword
-                  description: Module ID
-            - name: pressure
-              type: group
-              description: >
-                Pressure
-              fields:
-                - name: timestamp
-                  type: date
-                  description: Timestamp
-                - name: value
-                  type: float
-                  description: Value
-                - name: moduleId
-                  type: keyword
-                  description: Module ID
-            - name: rain
-              type: group
-              description: >
-                Rain
-              fields:
-                - name: timestamp
-                  type: date
-                  description: Timestamp
-                - name: moduleId
-                  type: keyword
-                  description: Module ID
-                - name: rain_24h
-                  type: float
-                  description: Rain 24 hours
-                - name: rain_60min
-                  type: float
-                  description: Rain 60 minutes
-                - name: rain_live
-                  type: float
-                  description: Rain live
-            - name: wind
-              type: group
-              description: >
-                Wind
-              fields:
-                - name: timestamp
-                  type: date
-                  description: Timestamp
-                - name: moduleId
-                  type: keyword
-                  description: Module ID
-                - name: windAngle
-                  type: float
-                  description: Wind angle
-                - name: windStrength
-                  type: float
-                  description: Wind strength
-                - name: gustStrength
-                  type: float
-                  description: Gust strength
-                - name: gustAngle
-                  type: float
-                  description: Gust angle
+                - name: temperature
+                  type: group
+                  description: >
+                    Temperature
+                  fields:
+                    - name: timestamp
+                      type: date
+                      description: Timestamp
+                    - name: value
+                      type: float
+                      description: Value
+                    - name: moduleId
+                      type: keyword
+                      description: Module ID
+                - name: humidity
+                  type: group
+                  description: >
+                    Humidity
+                  fields:
+                    - name: timestamp
+                      type: date
+                      description: Timestamp
+                    - name: value
+                      type: float
+                      description: Value
+                    - name: moduleId
+                      type: keyword
+                      description: Module ID
+                - name: pressure
+                  type: group
+                  description: >
+                    Pressure
+                  fields:
+                    - name: timestamp
+                      type: date
+                      description: Timestamp
+                    - name: value
+                      type: float
+                      description: Value
+                    - name: moduleId
+                      type: keyword
+                      description: Module ID
+                - name: rain
+                  type: group
+                  description: >
+                    Rain
+                  fields:
+                    - name: timestamp
+                      type: date
+                      description: Timestamp
+                    - name: moduleId
+                      type: keyword
+                      description: Module ID
+                    - name: rain_24h
+                      type: float
+                      description: Rain 24 hours
+                    - name: rain_60min
+                      type: float
+                      description: Rain 60 minutes
+                    - name: rain_live
+                      type: float
+                      description: Rain live
+                - name: wind
+                  type: group
+                  description: >
+                    Wind
+                  fields:
+                    - name: timestamp
+                      type: date
+                      description: Timestamp
+                    - name: moduleId
+                      type: keyword
+                      description: Module ID
+                    - name: windAngle
+                      type: float
+                      description: Wind angle
+                    - name: windStrength
+                      type: float
+                      description: Wind strength
+                    - name: gustStrength
+                      type: float
+                      description: Gust strength
+                    - name: gustAngle
+                      type: float
+                      description: Gust angle
 
 - key: beat
   title: Beat
