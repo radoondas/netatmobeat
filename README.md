@@ -1,119 +1,59 @@
 # Netatmobeat
 
-Welcome to Netatmobeat.
+Welcome to Netatmobeat. 
 
-Ensure that this folder is at the following location:
-`${GOPATH}/github.com/radoondas/netatmobeat`
+This beat will pull data from public [Netatmo](https://www.netatmo.com/) API for weather gathered from weather stations around the world.
+You can look at [weather map](https://weathermap.netatmo.com/) provided by Netatmo.
 
-## Getting Started with Netatmobeat
+The beat is able to pull data from public API and index them in to Elasticsearch. Once data are indexed, yuo can analyse and visualise on [map](https://www.elastic.co/guide/en/kibana/current/tilemap.html).
 
-### Requirements
+To start working with netatmobeat you need to have an account at Netatmo [DEV](https://dev.netatmo.com) to be able to access API. Once you are signed in, configure new [App](https://dev.netatmo.com/myaccount/createanapp) to be able to connect to dev API. 
 
-* [Golang](https://golang.org/dl/) 1.9
+## Installation
+Download and install appropriate package for your system. Check release [page](https://github.com/radoondas/netatmobeat/releases) for latest packages.
 
-### Init Project
-To get running with Netatmobeat and also install the
-dependencies, run the following command:
+For docker image `docker pull radoondas/netatmobeat`
 
+## Configuration
+
+Configure authentication after you create application in https://dev.netatmo.com and paste values for your application.
 ```
-make setup
-```
-
-It will create a clean git history for each major step. Note that you can always rewrite the history if you wish before pushing your changes.
-
-To push Netatmobeat in the git repository, run the following commands:
-
-```
-git remote set-url origin https://github.com/radoondas/netatmobeat
-git push origin master
+  client_id: "abcdefghijklmn"
+  client_secret: "mysecretfromapp"
 ```
 
-For further development, check out the [beat developer guide](https://www.elastic.co/guide/en/beats/libbeat/current/new-beat.html).
-
-### Build
-
-To build the binary for Netatmobeat run the command below. This will generate a binary
-in the same directory with the name netatmobeat.
-
+ Username/password to your Netatmo dev account
 ```
-make
+  username: "user@email"
+  password: "password"
 ```
 
-
-### Run
-
-To run Netatmobeat with debugging output enabled, run:
-
+Public weather configuration. Define regions you want to gather data from. Regions are not exact shapes in terms of a response as they are provided from Netatmo cache.
 ```
-./netatmobeat -c netatmobeat.yml -e -d "*"
-```
-
-
-### Test
-
-To test Netatmobeat, run the following command:
-
-```
-make testsuite
-```
-
-alternatively:
-```
-make unit-tests
-make system-tests
-make integration-tests
-make coverage-report
+  public_weather:
+    enabled: true
+    regions:
+      - region:
+        enabled: true
+        name: "EMEA"
+        description: "Slovakia"
+        lat_ne: 49.650266
+        lon_ne: 22.780239
+        lat_sw: 47.780377
+      - region:
+        enabled: true
+        name: "Spain"
+        description: "Somewhere in EU"
+        lat_ne: 43.417618
+        lon_ne: 3.569562
+        lat_sw: 36.867098
+        lon_sw: -9.438251
 ```
 
-The test coverage is reported in the folder `./build/coverage/`
+Configure your output and/or monitoring options
 
-### Update
-
-Each beat has a template for the mapping in elasticsearch and a documentation for the fields
-which is automatically generated based on `etc/fields.yml`.
-To generate etc/netatmobeat.template.json and etc/netatmobeat.asciidoc
+## Run
 
 ```
-make update
+./netatmobeat -c netatmobeat.yml -e 
 ```
-
-
-### Cleanup
-
-To clean  Netatmobeat source code, run the following commands:
-
-```
-make fmt
-make simplify
-```
-
-To clean up the build directory and generated artifacts, run:
-
-```
-make clean
-```
-
-
-### Clone
-
-To clone Netatmobeat from the git repository, run the following commands:
-
-```
-mkdir -p ${GOPATH}/github.com/radoondas/netatmobeat
-cd ${GOPATH}/github.com/radoondas/netatmobeat
-git clone https://github.com/radoondas/netatmobeat
-```
-
-
-For further development, check out the [beat developer guide](https://www.elastic.co/guide/en/beats/libbeat/current/new-beat.html).
-
-
-## Packaging
-
-The beat frameworks provides tools to crosscompile and package your beat for different platforms. This requires [docker](https://www.docker.com/) and vendoring as described above. To build packages of your beat, run the following command:
-
-```
-make package
-```
-
-This will fetch and create all images required for the build process. The hole process to finish can take several minutes.
