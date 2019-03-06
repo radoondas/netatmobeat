@@ -1,14 +1,30 @@
+// Licensed to Elasticsearch B.V. under one or more contributor
+// license agreements. See the NOTICE file distributed with
+// this work for additional information regarding copyright
+// ownership. Elasticsearch B.V. licenses this file to you under
+// the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package file_integrity
 
 import (
 	"errors"
-	"math"
 	"os"
 	"path/filepath"
 	"sync/atomic"
 	"time"
 
-	"github.com/juju/ratelimit"
+	"golang.org/x/time/rate"
 
 	"github.com/elastic/beats/libbeat/logp"
 )
@@ -21,7 +37,7 @@ var scannerID uint32
 type scanner struct {
 	fileCount   uint64
 	byteCount   uint64
-	tokenBucket *ratelimit.Bucket
+	tokenBucket *rate.Limiter
 
 	done   <-chan struct{}
 	eventC chan Event
@@ -55,10 +71,10 @@ func (s *scanner) Start(done <-chan struct{}) (<-chan Event, error) {
 				s.config.ScanRatePerSec,
 				s.config.MaxFileSize)
 
-		s.tokenBucket = ratelimit.NewBucketWithRate(
-			float64(s.config.ScanRateBytesPerSec)/2., // Fill Rate
-			int64(s.config.MaxFileSizeBytes))         // Max Capacity
-		s.tokenBucket.TakeAvailable(math.MaxInt64)
+		s.tokenBucket = rate.NewLimiter(
+			rate.Limit(s.config.ScanRateBytesPerSec), // Fill Rate
+			int(s.config.MaxFileSizeBytes))           // Max Capacity
+		s.tokenBucket.ReserveN(time.Now(), int(s.config.MaxFileSizeBytes))
 	}
 
 	go s.scan()
@@ -155,13 +171,24 @@ func (s *scanner) throttle(fileSize uint64) {
 		return
 	}
 
-	wait := s.tokenBucket.Take(int64(fileSize))
-	if wait > 0 {
-		timer := time.NewTimer(wait)
-		select {
-		case <-timer.C:
-		case <-s.done:
-		}
+	reservation := s.tokenBucket.ReserveN(time.Now(), int(fileSize))
+	if !reservation.OK() {
+		// This would happen if the file size was greater than the token
+		// buckets burst rate, but that can't happen because we don't hash files
+		// larger than the burst rate (scan_max_file_size).
+		return
+	}
+
+	delay := reservation.Delay()
+	if delay == 0 {
+		return
+	}
+
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+	select {
+	case <-s.done:
+	case <-timer.C:
 	}
 }
 

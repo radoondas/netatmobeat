@@ -5,7 +5,6 @@ package beater
 
 import (
 	"encoding/json"
-	//"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,7 +14,7 @@ import (
 )
 
 const (
-	URI_PATH_STATION = "/api/getstationsdata"
+	UriPathStation = "/api/getstationsdata"
 )
 
 type StationsData struct {
@@ -110,16 +109,16 @@ type User struct {
 	}
 }
 
-func (bt *Netatmobeat) GetStationsData() error {
+func (bt *Netatmobeat) GetStationsData(stationID string) error {
 	data := url.Values{}
 	//token:=bt.creds.Access_token
 	data.Add("access_token", bt.creds.Access_token)
-	data.Add("device_id", "70:ee:50:28:90:aa")
+	data.Add("device_id", stationID)
 	data.Add("get_favorites", "false")
 	data.Add("scope", "read_station")
 
 	u, _ := url.ParseRequestURI(netatmoApiUrl)
-	u.Path = URI_PATH_STATION
+	u.Path = UriPathStation
 	urlStr := u.String()
 
 	client := &http.Client{}

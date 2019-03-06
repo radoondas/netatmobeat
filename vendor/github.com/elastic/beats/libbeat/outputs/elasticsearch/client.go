@@ -1,3 +1,20 @@
+// Licensed to Elasticsearch B.V. under one or more contributor
+// license agreements. See the NOTICE file distributed with
+// this work for additional information regarding copyright
+// ownership. Elasticsearch B.V. licenses this file to you under
+// the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package elasticsearch
 
 import (
@@ -10,6 +27,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/elastic/beats/libbeat/common"
 
 	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/logp"
@@ -49,6 +68,7 @@ type ClientSettings struct {
 	Proxy              *url.URL
 	TLS                *transport.TLSConfig
 	Username, Password string
+	EscapeHTML         bool
 	Parameters         map[string]string
 	Headers            map[string]string
 	Index              outil.Selector
@@ -71,7 +91,7 @@ type Connection struct {
 	onConnectCallback func() error
 
 	encoder bodyEncoder
-	version string
+	version common.Version
 }
 
 type bulkIndexAction struct {
@@ -167,9 +187,9 @@ func NewClient(
 	var encoder bodyEncoder
 	compression := s.CompressionLevel
 	if compression == 0 {
-		encoder = newJSONEncoder(nil)
+		encoder = newJSONEncoder(nil, s.EscapeHTML)
 	} else {
-		encoder, err = newGzipEncoder(compression, nil)
+		encoder, err = newGzipEncoder(compression, nil, s.EscapeHTML)
 		if err != nil {
 			return nil, err
 		}
@@ -300,7 +320,7 @@ func (client *Client) publishEvents(
 		return data, sendErr
 	}
 
-	debugf("PublishEvents: %d events have been  published to elasticsearch in %v.",
+	debugf("PublishEvents: %d events have been published to elasticsearch in %v.",
 		len(data),
 		time.Now().Sub(begin))
 
@@ -354,6 +374,7 @@ func bulkEncodePublishRequest(
 		}
 		if err := body.Add(meta, event); err != nil {
 			logp.Err("Failed to encode event: %s", err)
+			logp.Debug("elasticsearch", "Failed event: %v", event)
 			continue
 		}
 		okEvents = append(okEvents, data[i])
@@ -445,7 +466,7 @@ func bulkCollectPublishFails(
 	data []publisher.Event,
 ) ([]publisher.Event, bulkResultStats) {
 	if err := reader.expectDict(); err != nil {
-		logp.Err("Failed to parse bulk respose: expected JSON object")
+		logp.Err("Failed to parse bulk response: expected JSON object")
 		return nil, bulkResultStats{}
 	}
 
@@ -472,7 +493,7 @@ func bulkCollectPublishFails(
 
 	// check items field is an array
 	if err := reader.expectArray(); err != nil {
-		logp.Err("Failed to parse bulk respose: expected items array")
+		logp.Err("Failed to parse bulk response: expected items array")
 		return nil, bulkResultStats{}
 	}
 
@@ -610,7 +631,7 @@ func (client *Client) LoadJSON(path string, json map[string]interface{}) ([]byte
 }
 
 // GetVersion returns the elasticsearch version the client is connected to
-func (client *Client) GetVersion() string {
+func (client *Client) GetVersion() common.Version {
 	return client.Connection.version
 }
 
@@ -642,16 +663,26 @@ func (client *Client) Test(d testing.Driver) {
 
 		err = client.Connect()
 		d.Fatal("talk to server", err)
-		d.Info("version", client.version)
+		d.Info("version", client.version.String())
 	})
+}
+
+func (client *Client) String() string {
+	return "elasticsearch(" + client.Connection.URL + ")"
 }
 
 // Connect connects the client.
 func (conn *Connection) Connect() error {
-	var err error
-	conn.version, err = conn.Ping()
+	versionString, err := conn.Ping()
 	if err != nil {
 		return err
+	}
+
+	if version, err := common.NewVersion(versionString); err != nil {
+		logp.Err("Invalid version from Elasticsearch: %v", versionString)
+		conn.version = common.Version{}
+	} else {
+		conn.version = *version
 	}
 
 	err = conn.onConnectCallback()
@@ -780,7 +811,9 @@ func (conn *Connection) execHTTPRequest(req *http.Request) (int, []byte, error) 
 	return status, obj, err
 }
 
-func (conn *Connection) GetVersion() string {
+// GetVersion returns the elasticsearch version the client is connected to.
+// The version is read and updated on 'Connect'.
+func (conn *Connection) GetVersion() common.Version {
 	return conn.version
 }
 

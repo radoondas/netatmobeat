@@ -1,3 +1,20 @@
+// Licensed to Elasticsearch B.V. under one or more contributor
+// license agreements. See the NOTICE file distributed with
+// this work for additional information regarding copyright
+// ownership. Elasticsearch B.V. licenses this file to you under
+// the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 // +build !integration
 
 package fileset
@@ -10,7 +27,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
+	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/logp"
 )
 
@@ -30,7 +49,7 @@ func TestLoadManifestNginx(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, manifest.ModuleVersion, "1.0")
 	assert.Equal(t, manifest.IngestPipeline, "ingest/default.json")
-	assert.Equal(t, manifest.Prospector, "config/nginx-access.yml")
+	assert.Equal(t, manifest.Input, "config/nginx-access.yml")
 
 	vars := manifest.Vars
 	assert.Equal(t, "paths", vars[0]["name"])
@@ -145,11 +164,11 @@ func TestResolveVariable(t *testing.T) {
 	}
 }
 
-func TestGetProspectorConfigNginx(t *testing.T) {
+func TestGetInputConfigNginx(t *testing.T) {
 	fs := getModuleForTesting(t, "nginx", "access")
 	assert.NoError(t, fs.Read("5.2.0"))
 
-	cfg, err := fs.getProspectorConfig()
+	cfg, err := fs.getInputConfig()
 	assert.NoError(t, err)
 
 	assert.True(t, cfg.HasField("paths"))
@@ -160,11 +179,11 @@ func TestGetProspectorConfigNginx(t *testing.T) {
 	assert.Equal(t, "filebeat-5.2.0-nginx-access-default", pipelineID)
 }
 
-func TestGetProspectorConfigNginxOverrides(t *testing.T) {
+func TestGetInputConfigNginxOverrides(t *testing.T) {
 	modulesPath, err := filepath.Abs("../module")
 	assert.NoError(t, err)
 	fs, err := New(modulesPath, "access", &ModuleConfig{Module: "nginx"}, &FilesetConfig{
-		Prospector: map[string]interface{}{
+		Input: map[string]interface{}{
 			"close_eof": true,
 		},
 	})
@@ -172,7 +191,7 @@ func TestGetProspectorConfigNginxOverrides(t *testing.T) {
 
 	assert.NoError(t, fs.Read("5.2.0"))
 
-	cfg, err := fs.getProspectorConfig()
+	cfg, err := fs.getInputConfig()
 	assert.NoError(t, err)
 
 	assert.True(t, cfg.HasField("paths"))
@@ -196,7 +215,8 @@ func TestGetPipelineNginx(t *testing.T) {
 	fs := getModuleForTesting(t, "nginx", "access")
 	assert.NoError(t, fs.Read("5.2.0"))
 
-	pipelineID, content, err := fs.GetPipeline("5.2.0")
+	version := common.MustNewVersion("5.2.0")
+	pipelineID, content, err := fs.GetPipeline(*version)
 	assert.NoError(t, err)
 	assert.Equal(t, "filebeat-5.2.0-nginx-access-default", pipelineID)
 	assert.Contains(t, content, "description")
@@ -217,27 +237,31 @@ func TestGetPipelineConvertTS(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NoError(t, fs.Read("6.1.0"))
 
-	// ES 6.0.0 should not have beat.timezone referenced
-	pipelineID, content, err := fs.GetPipeline("6.0.0")
-	assert.NoError(t, err)
-	assert.Equal(t, "filebeat-6.1.0-system-syslog-pipeline", pipelineID)
-	marshaled, err := json.Marshal(content)
-	assert.NoError(t, err)
-	assert.NotContains(t, string(marshaled), "beat.timezone")
+	cases := map[string]struct {
+		Beat     string
+		Timezone bool
+	}{
+		"6.0.0": {Timezone: false},
+		"6.1.0": {Timezone: true},
+		"6.2.0": {Timezone: true},
+	}
 
-	// ES 6.1.0 should have beat.timezone referenced
-	pipelineID, content, err = fs.GetPipeline("6.1.0")
-	assert.NoError(t, err)
-	assert.Equal(t, "filebeat-6.1.0-system-syslog-pipeline", pipelineID)
-	marshaled, err = json.Marshal(content)
-	assert.NoError(t, err)
-	assert.Contains(t, string(marshaled), "beat.timezone")
+	for esVersion, cfg := range cases {
+		pipelineName := "filebeat-6.1.0-system-syslog-pipeline"
 
-	// ES 6.2.0 should have beat.timezone referenced
-	pipelineID, content, err = fs.GetPipeline("6.2.0")
-	assert.NoError(t, err)
-	assert.Equal(t, "filebeat-6.1.0-system-syslog-pipeline", pipelineID)
-	marshaled, err = json.Marshal(content)
-	assert.NoError(t, err)
-	assert.Contains(t, string(marshaled), "beat.timezone")
+		t.Run(fmt.Sprintf("es=%v", esVersion), func(t *testing.T) {
+			ver := common.MustNewVersion(esVersion)
+			pipelineID, content, err := fs.GetPipeline(*ver)
+			require.NoError(t, err)
+			assert.Equal(t, pipelineName, pipelineID)
+
+			marshaled, err := json.Marshal(content)
+			require.NoError(t, err)
+			if cfg.Timezone {
+				assert.Contains(t, string(marshaled), "beat.timezone")
+			} else {
+				assert.NotContains(t, string(marshaled), "beat.timezone")
+			}
+		})
+	}
 }

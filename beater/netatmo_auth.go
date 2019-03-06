@@ -2,21 +2,25 @@ package beater
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/elastic/beats/libbeat/logp"
 )
 
 func (bt *Netatmobeat) GetAccessToken() error {
 
+	logp.NewLogger(selector).Debug("Authenticating.")
+
 	data := url.Values{}
 	data.Add("grant_type", "password")
-	data.Add("client_id", bt.config.Client_id)
-	data.Add("client_secret", bt.config.Client_secret)
+	data.Add("client_id", bt.config.ClientId)
+	data.Add("client_secret", bt.config.ClientSecret)
 	data.Add("username", bt.config.Username)
 	data.Add("password", bt.config.Password)
 	data.Add("scope", "read_station")
@@ -46,15 +50,17 @@ func (bt *Netatmobeat) GetAccessToken() error {
 		log.Fatal(err)
 	}
 
-	//rt := ResponseOauth2Token{}
 	err = json.Unmarshal([]byte(body), &bt.creds)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Access_token: %v", bt.creds.Access_token)
-	fmt.Printf("Refresh_token: %v", bt.creds.Refresh_token)
 
-	//fmt.Printf(string(bodyBytes))
+	// set last auth time
+	bt.creds.LastAuthTime = time.Now().UTC().Unix()
+
+	logp.NewLogger(selector).Debug("Access_token: ", bt.creds.Access_token)
+	logp.NewLogger(selector).Debug("Refresh_token: ", bt.creds.Refresh_token)
+	logp.NewLogger(selector).Debug("Expires in: ", bt.creds.Expire_in)
 
 	return nil
 }
@@ -62,10 +68,12 @@ func (bt *Netatmobeat) GetAccessToken() error {
 //Endpoint: https://api.netatmo.com/oauth2/token
 func (bt *Netatmobeat) RefreshAccessToken() error {
 
+	logp.NewLogger(selector).Debug("Refreshing Token.")
+
 	data := url.Values{}
 	data.Add("grant_type", "refresh_token")
-	data.Add("client_id", bt.config.Client_id)
-	data.Add("client_secret", bt.config.Client_secret)
+	data.Add("client_id", bt.config.ClientId)
+	data.Add("client_secret", bt.config.ClientSecret)
 	data.Add("refresh_token", bt.creds.Refresh_token)
 
 	u, _ := url.ParseRequestURI(netatmoApiUrl)
@@ -93,15 +101,17 @@ func (bt *Netatmobeat) RefreshAccessToken() error {
 		log.Fatal(err)
 	}
 
-	//rt := ResponseOauth2Token{}
 	err = json.Unmarshal([]byte(body), &bt.creds)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Access_token: %v", bt.creds.Access_token)
-	fmt.Printf("Refresh_token: %v", bt.creds.Refresh_token)
 
-	//fmt.Printf(string(bodyBytes))
+	// set last auth time
+	bt.creds.LastAuthTime = time.Now().UTC().Unix()
+
+	logp.NewLogger(selector).Debug("Access_token: ", bt.creds.Access_token)
+	logp.NewLogger(selector).Debug("Refresh_token: ", bt.creds.Refresh_token)
+	logp.NewLogger(selector).Debug("Expires in: ", bt.creds.Expire_in)
 
 	return nil
 }

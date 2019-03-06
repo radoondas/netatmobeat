@@ -4,12 +4,64 @@
 
 netatmobeat:
   # Defines how often an event is sent to the output
-  period: 60s
+  # 10 minutes is preferred time frame to query new data
+  period: 10m
 
   # Authentication configuration
-  client_id: "599d72a5b05a215f738babc7"
-  client_secret: "E8WKWjQtoboO7HemQ2bfwMVZJGAohwXkOpCKsSlKjeJp"
+  # Create application in https://dev.netatmo.com and paste values for authorisation
+  client_id: "abcdefghijklmn"
+  client_secret: "mysecretfromapp"
 
-  # username/password to your https://dev.netatmo.com account
+  # username/password to your https://dev.netatmo.com account for authentication
   username: "user@email"
   password: "password"
+
+  # Public weather configuration. Define regions you want to gather data from. Regions are not exact shapes in terms of
+  # response as they are provided from Netatmo cache.
+  public_weather:
+    enabled: true
+    regions:
+      - region:
+        enabled: true
+        name: "EMEA"
+        description: "Slovakia"
+        lat_ne: 49.650266
+        lon_ne: 22.780239
+        lat_sw: 47.780377
+      - region:
+        enabled: true
+        name: "Spain"
+        description: "Somewhere in EU"
+        lat_ne: 43.417618
+        lon_ne: 3.569562
+        lat_sw: 36.867098
+        lon_sw: -9.438251
+      - region:
+        enabled: true
+        name: "Canada"
+        description: "Somewhere in Canada"
+        lat_ne: 59.999575
+        lon_ne: -109.983298
+        lat_sw: 49.085200
+        lon_sw: -119.817889
+      - region:
+        enabled: true
+        name: "Canada 2"
+        description: "Somewhere in Canada"
+        lat_ne: 59.991157
+        lon_ne: -94.813006
+        lat_sw: 49.056411
+        lon_sw: -110.062029
+      - region:
+        enabled: true
+        name: "Hawai"
+        description: "Hawai"
+        lat_ne: 22.289007
+        lon_ne: -154.135656
+        lat_sw: 18.789029
+        lon_sw: -160.756554
+
+  # Feature not implemented yet and disabled in code
+  weather_stations:
+    enabled: false
+    ids: [ "st:at:io:ni:dd" ]

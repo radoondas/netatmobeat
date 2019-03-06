@@ -1,3 +1,142 @@
+- key: netatmo
+  title: netatmobeat
+  description:
+  fields:
+    - name: station_id
+      type: keyword
+      required: true
+      description: >
+        Station id
+    - name: mark
+      type: short
+      required: true
+      description: >
+        Mark
+    - name: source_type
+      type: keyword
+      required: true
+      description: >
+        Tye of the data source
+    - name: place
+      type: group
+      description: >
+        `place` - location of weather station
+      fields:
+        - name: timezone
+          type: keyword
+          description: >
+            Timezone
+        - name: altitude
+          type: float
+          description: >
+            Altitude
+        - name: location
+          type: geo_point
+          description: >
+            GEO location
+        - name: city
+          type: keyword
+          description: >
+            City
+        - name: country
+          type: keyword
+          description: >
+            Country
+    - name: publicdata
+      type: group
+      description: >
+        Publicdata
+      fields:
+        - name: measures
+          type: group
+          description: >
+            measures
+          fields:
+            - name: temperature
+              type: group
+              description: >
+                Temperature
+              fields:
+                - name: timestamp
+                  type: date
+                  description: Timestamp
+                - name: value
+                  type: float
+                  description: Value
+                - name: moduleId
+                  type: keyword
+                  description: Module ID
+            - name: humidity
+              type: group
+              description: >
+                Humidity
+              fields:
+                - name: timestamp
+                  type: date
+                  description: Timestamp
+                - name: value
+                  type: float
+                  description: Value
+                - name: moduleId
+                  type: keyword
+                  description: Module ID
+            - name: pressure
+              type: group
+              description: >
+                Pressure
+              fields:
+                - name: timestamp
+                  type: date
+                  description: Timestamp
+                - name: value
+                  type: float
+                  description: Value
+                - name: moduleId
+                  type: keyword
+                  description: Module ID
+            - name: rain
+              type: group
+              description: >
+                Rain
+              fields:
+                - name: timestamp
+                  type: date
+                  description: Timestamp
+                - name: moduleId
+                  type: keyword
+                  description: Module ID
+                - name: rain_24h
+                  type: float
+                  description: Rain 24 hours
+                - name: rain_60min
+                  type: float
+                  description: Rain 60 minutes
+                - name: rain_live
+                  type: float
+                  description: Rain live
+            - name: wind
+              type: group
+              description: >
+                Wind
+              fields:
+                - name: timestamp
+                  type: date
+                  description: Timestamp
+                - name: moduleId
+                  type: keyword
+                  description: Module ID
+                - name: windAngle
+                  type: float
+                  description: Wind angle
+                - name: windStrength
+                  type: float
+                  description: Wind strength
+                - name: gustStrength
+                  type: float
+                  description: Gust strength
+                - name: gustAngle
+                  type: float
+                  description: Gust angle
 
 - key: beat
   title: Beat
@@ -59,6 +198,53 @@
           type: keyword
           description: >
             Error type.
+
+- key: alias
+  title: Alias
+  description: >
+    Alias fields for compatibility with 7.x.
+  fields:
+    # Common Beats fields
+    - name: host.hostname
+      type: alias
+      path: beat.hostname
+    - name: event.timezone
+      type: alias
+      path: beat.timezone
+
+    # Cloud processor fields
+    - name: cloud.provider
+      type: alias
+      path: meta.cloud.provider
+    - name: cloud.instance.id
+      type: alias
+      path: meta.cloud.instance_id
+    - name: cloud.instance.name
+      type: alias
+      path: meta.cloud.instance_name
+    - name: cloud.machine.type
+      type: alias
+      path: meta.cloud.machine_type
+    - name: cloud.availability_zone
+      type: alias
+      path: meta.cloud.availability_zone
+    - name: cloud.project.id
+      type: alias
+      path: meta.cloud.project_id
+    - name: cloud.region
+      type: alias
+      path: meta.cloud.region
+
+    # Docker processor fields
+    - name: container.id
+      type: alias
+      path: docker.container.id
+    - name: container.name
+      type: alias
+      path: docker.container.name
+    - name: container.image.name
+      type: alias
+      path: docker.container.image
 - key: cloud
   title: Cloud provider metadata
   description: >
@@ -123,6 +309,48 @@
           object_type: keyword
           description: >
             Image labels.
+- key: host
+  title: Host
+  description: >
+    Info collected for the host machine.
+  anchor: host-processor
+  fields:
+    - name: host
+      type: group
+      fields:
+        - name: name
+          type: keyword
+          description: >
+            Hostname.
+        - name: id
+          type: keyword
+          description: >
+            Unique host id.
+        - name: architecture
+          type: keyword
+          description: >
+            Host architecture (e.g. x86_64, arm, ppc, mips).
+        - name: os.platform
+          type: keyword
+          description: >
+            OS platform (e.g. centos, ubuntu, windows).
+        - name: os.version
+          type: keyword
+          description: >
+            OS version.
+        - name: os.family
+          type: keyword
+          description: >
+            OS family (e.g. redhat, debian, freebsd, windows).
+        - name: ip
+          type: ip
+          description: >
+            List of IP-addresses.
+        - name: mac
+          type: keyword
+          description: >
+            List of hardware-addresses, usually MAC-addresses.
+
 - key: kubernetes
   title: Kubernetes
   description: >
@@ -137,6 +365,11 @@
           type: keyword
           description: >
             Kubernetes pod name
+
+        - name: pod.uid
+          type: keyword
+          description: >
+            Kubernetes Pod UID
 
         - name: namespace
           type: keyword
@@ -167,39 +400,3 @@
           type: keyword
           description: >
             Kubernetes container image
-- key: netatmobeat
-  title: netatmobeat
-  description:
-  fields:
-    - name: station_id
-      type: keyword
-      required: true
-      description: >
-        Station id
-    - name: mark
-      type: short
-      required: true
-      description: >
-        Mark
-    - name: source_type
-      type: keyword
-      required: true
-      description: >
-        Tye of the data source
-    - name: place
-      type: group
-      description: >
-        `place` - location of weather station
-      fields:
-        - name: timezone
-          type: keyword
-          description: >
-            Timezone
-        - name: altitude
-          type: short
-          description: >
-            Altitude
-        - name: location
-          type: geo_point
-          description: >
-            GEO location

@@ -6,11 +6,33 @@ package config
 import "time"
 
 type Config struct {
-	Period        time.Duration `config:"period"`
-	Client_id     string        `config:"client_id"`
-	Client_secret string        `config:"client_secret"`
-	Username      string        `config:"username"`
-	Password      string        `config:"password"`
+	Period          time.Duration   `config:"period"`
+	ClientId        string          `config:"client_id"`
+	ClientSecret    string          `config:"client_secret"`
+	Username        string          `config:"username"`
+	Password        string          `config:"password"`
+	WeatherStations WeatherStations `config:"weather_stations"`
+	PublicWeather   PublicWeather   `config:"public_weather"`
+}
+
+type WeatherStations struct {
+	Enabled bool     `config:"enabled"`
+	Ids     []string `config:"ids"`
+}
+
+type PublicWeather struct {
+	Enabled bool     `config:"enabled"`
+	Regions []Region `config:"regions"`
+}
+
+type Region struct {
+	Enabled     bool    `config:"enabled"`
+	Name        string  `config:"name"`
+	Description string  `config:"description"`
+	LatNe       float64 `config:"lat_ne"`
+	LonNe       float64 `config:"lon_ne"`
+	LatSw       float64 `config:"lat_sw"`
+	LonSw       float64 `config:"lon_sw"`
 }
 
 var DefaultConfig = Config{

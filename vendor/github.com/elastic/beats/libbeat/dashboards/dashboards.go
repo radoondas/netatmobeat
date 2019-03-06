@@ -1,11 +1,29 @@
+// Licensed to Elasticsearch B.V. under one or more contributor
+// license agreements. See the NOTICE file distributed with
+// this work for additional information regarding copyright
+// ownership. Elasticsearch B.V. licenses this file to you under
+// the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package dashboards
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"path/filepath"
-	"strconv"
-	"strings"
+
+	errw "github.com/pkg/errors"
 
 	"github.com/elastic/beats/libbeat/common"
 )
@@ -24,6 +42,7 @@ const (
 // via the kibana dashboard loader plugin. For older versions of the Elastic Stack
 // we write the dashboards directly into the .kibana index.
 func ImportDashboards(
+	ctx context.Context,
 	beatName, hostname, homePath string,
 	kibanaConfig, esConfig, dashboardsConfig *common.Config,
 	msgOutputter MessageOutputter,
@@ -85,12 +104,7 @@ func ImportDashboards(
 
 		esLoader.statusMsg("Elasticsearch URL %v", esLoader.client.Connection.URL)
 
-		majorVersion, _, err := getMajorAndMinorVersion(esLoader.version)
-		if err != nil {
-			return fmt.Errorf("wrong Elasticsearch version: %v", err)
-		}
-
-		if majorVersion < 6 {
+		if esLoader.version.Major < 6 {
 			importVia = importViaES
 		} else {
 			importVia = useKibana
@@ -102,16 +116,16 @@ func ImportDashboards(
 	case importViaES:
 		return ImportDashboardsViaElasticsearch(esLoader)
 	case importViaKibana:
-		return setupAndImportDashboardsViaKibana(hostname, kibanaConfig, &dashConfig, msgOutputter)
+		return setupAndImportDashboardsViaKibana(ctx, hostname, kibanaConfig, &dashConfig, msgOutputter)
 	default:
 		return errors.New("Elasticsearch or Kibana configuration missing for loading dashboards.")
 	}
 }
 
-func setupAndImportDashboardsViaKibana(hostname string, kibanaConfig *common.Config,
+func setupAndImportDashboardsViaKibana(ctx context.Context, hostname string, kibanaConfig *common.Config,
 	dashboardsConfig *Config, msgOutputter MessageOutputter) error {
 
-	kibanaLoader, err := NewKibanaLoader(kibanaConfig, dashboardsConfig, hostname, msgOutputter)
+	kibanaLoader, err := NewKibanaLoader(ctx, kibanaConfig, dashboardsConfig, hostname, msgOutputter)
 	if err != nil {
 		return fmt.Errorf("fail to create the Kibana loader: %v", err)
 	}
@@ -124,23 +138,22 @@ func setupAndImportDashboardsViaKibana(hostname string, kibanaConfig *common.Con
 }
 
 func ImportDashboardsViaKibana(kibanaLoader *KibanaLoader) error {
-
-	if !isKibanaAPIavailable(kibanaLoader.version) {
-		return fmt.Errorf("Kibana API is not available in Kibana version %s", kibanaLoader.version)
+	version := kibanaLoader.version
+	if !version.IsValid() {
+		return errors.New("No valid kibana version available")
 	}
 
-	version, err := common.NewVersion(kibanaLoader.version)
-	if err != nil {
-		return fmt.Errorf("Invalid Kibana version: %s", kibanaLoader.version)
+	if !isKibanaAPIavailable(version) {
+		return fmt.Errorf("Kibana API is not available in Kibana version %s", version.String())
 	}
 
-	importer, err := NewImporter(*version, kibanaLoader.config, kibanaLoader)
+	importer, err := NewImporter(version, kibanaLoader.config, kibanaLoader)
 	if err != nil {
 		return fmt.Errorf("fail to create a Kibana importer for loading the dashboards: %v", err)
 	}
 
 	if err := importer.Import(); err != nil {
-		return fmt.Errorf("fail to import the dashboards in Kibana: %v", err)
+		return errw.Wrap(err, "fail to import the dashboards in Kibana")
 	}
 
 	return nil
@@ -166,40 +179,6 @@ func ImportDashboardsViaElasticsearch(esLoader *ElasticsearchLoader) error {
 	return nil
 }
 
-func getMajorAndMinorVersion(version string) (int, int, error) {
-	fields := strings.Split(version, ".")
-	if len(fields) != 3 {
-		return 0, 0, fmt.Errorf("wrong version %s", version)
-	}
-	majorVersion := fields[0]
-	minorVersion := fields[1]
-
-	majorVersionInt, err := strconv.Atoi(majorVersion)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	minorVersionInt, err := strconv.Atoi(minorVersion)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	return majorVersionInt, minorVersionInt, nil
-}
-
-func isKibanaAPIavailable(version string) bool {
-	majorVersion, minorVersion, err := getMajorAndMinorVersion(version)
-	if err != nil {
-		return false
-	}
-
-	if majorVersion == 5 && minorVersion >= 6 {
-		return true
-	}
-
-	if majorVersion >= 6 {
-		return true
-	}
-
-	return false
+func isKibanaAPIavailable(version common.Version) bool {
+	return (version.Major == 5 && version.Minor >= 6) || version.Major >= 6
 }

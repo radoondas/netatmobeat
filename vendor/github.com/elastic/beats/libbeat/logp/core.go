@@ -1,3 +1,20 @@
+// Licensed to Elasticsearch B.V. under one or more contributor
+// license agreements. See the NOTICE file distributed with
+// this work for additional information regarding copyright
+// ownership. Elasticsearch B.V. licenses this file to you under
+// the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package logp
 
 import (
@@ -27,14 +44,16 @@ func init() {
 		selectors:    map[string]struct{}{},
 		rootLogger:   zap.NewNop(),
 		globalLogger: zap.NewNop(),
+		logger:       newLogger(zap.NewNop(), ""),
 	})
 }
 
 type coreLogger struct {
-	selectors    map[string]struct{}
-	rootLogger   *zap.Logger
-	globalLogger *zap.Logger
-	observedLogs *observer.ObservedLogs
+	selectors    map[string]struct{}    // Set of enabled debug selectors.
+	rootLogger   *zap.Logger            // Root logger without any options configured.
+	globalLogger *zap.Logger            // Logger used by legacy global functions (e.g. logp.Info).
+	logger       *Logger                // Logger that is the basis for all logp.Loggers.
+	observedLogs *observer.ObservedLogs // Contains events generated while in observation mode (a testing mode).
 }
 
 // Configure configures the logp package.
@@ -92,6 +111,7 @@ func Configure(cfg Config) error {
 		selectors:    selectors,
 		rootLogger:   root,
 		globalLogger: root.WithOptions(zap.AddCallerSkip(1)),
+		logger:       newLogger(root, ""),
 		observedLogs: observedLogs,
 	})
 	return nil
@@ -175,6 +195,8 @@ func makeFileOutput(cfg Config) (zapcore.Core, error) {
 		file.MaxSizeBytes(cfg.Files.MaxSize),
 		file.MaxBackups(cfg.Files.MaxBackups),
 		file.Permissions(os.FileMode(cfg.Files.Permissions)),
+		file.Interval(cfg.Files.Interval),
+		file.RedirectStderr(cfg.Files.RedirectStderr),
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create file rotator")

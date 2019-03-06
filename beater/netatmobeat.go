@@ -2,14 +2,12 @@ package beater
 
 import (
 	"fmt"
-	"log"
-	"time"
-
 	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/logp"
-
 	"github.com/radoondas/netatmobeat/config"
+	"log"
+	"time"
 )
 
 const (
@@ -17,6 +15,11 @@ const (
 	authPath      = "/oauth2/token"
 
 	cookieContentType = "application/x-www-form-urlencoded;charset=UTF-8"
+
+	selector = "netatmobeat"
+
+	authExpireThreshold = 10740
+	authCheckPeriod     = 60
 )
 
 type Netatmobeat struct {
@@ -26,13 +29,13 @@ type Netatmobeat struct {
 	creds  ResponseOauth2Token
 }
 
-//{"access_token":"599163c4f5459521648b4586|d56b25668a4fcb4c956c12073942fdb5","refresh_token":"599163c4f5459521648b4586|938350d65da251ec562ef8f52ee6f294","scope":["read_station"],"expires_in":10800,"expire_in":10800}
 type ResponseOauth2Token struct {
 	Access_token  string   `json:"access_token"`
 	Refresh_token string   `json:"refresh_token"`
 	Scope         []string `json:"scope"`
 	Expires_in    int      `json:"expires_in"`
 	Expire_in     int      `json:"expire_in"`
+	LastAuthTime  int64
 }
 
 // Creates beater
@@ -51,15 +54,13 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 }
 
 func (bt *Netatmobeat) Run(b *beat.Beat) error {
-	logp.Info("netatmobeat is running! Hit CTRL-C to stop it.")
+	logp.NewLogger(selector).Info("Netatmobeat is running! Hit CTRL-C to stop it.")
 
 	var err error
 	bt.client, err = b.Publisher.Connect()
 	if err != nil {
 		return err
 	}
-	ticker := time.NewTicker(bt.config.Period)
-	counter := 1
 
 	err = bt.GetAccessToken()
 	if err != nil {
@@ -67,40 +68,92 @@ func (bt *Netatmobeat) Run(b *beat.Beat) error {
 		return err
 	}
 
-	err = bt.GetStationsData()
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
+	go func() {
+		// Hardcoded check period
+		ticker := time.NewTicker(authCheckPeriod * time.Second)
+		defer ticker.Stop()
 
-	err = bt.GetPublicData()
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
+		for {
+			select {
+			case <-bt.done:
+				goto GotoFinish
+			case <-ticker.C:
+			}
 
-	for {
-		select {
-		case <-bt.done:
-			return nil
-		case <-ticker.C:
+			ct := time.Now().UTC().Unix()
+			logp.NewLogger(selector).Debug("Time difference for refresh: ", ct-bt.creds.LastAuthTime)
+			if (ct - bt.creds.LastAuthTime) >= authExpireThreshold {
+				bt.RefreshAccessToken()
+			}
 		}
+	GotoFinish:
+	}()
 
-		event := beat.Event{
-			Timestamp: time.Now(),
-			Fields: common.MapStr{
-				"type":    b.Info.Name,
-				"counter": counter,
-			},
+	// run only if public weather is enabled
+	if bt.config.PublicWeather.Enabled {
+		// for each reagion
+		for _, region := range bt.config.PublicWeather.Regions {
+			logp.NewLogger(selector).Info("* Region: ", region.Name, " Enabled: ", region.Enabled)
+			if region.Enabled {
+				go func(region config.Region) {
+					ticker := time.NewTicker(bt.config.Period)
+					defer ticker.Stop()
+
+					for {
+						select {
+						case <-bt.done:
+							goto GotoFinish
+						case <-ticker.C:
+						}
+
+						logp.NewLogger(selector).Debug("** Region: ", region.Description, " Name: ", region.Name)
+						err := bt.GetRegionData(region)
+
+						if err != nil {
+							//TODO: return?
+							logp.NewLogger(selector).Error(err)
+						}
+					}
+				GotoFinish:
+				}(region)
+			}
 		}
-		bt.client.Publish(event)
-		//bt.client.PublishEvents(event)
-		logp.Info("Event sent")
-		counter++
 	}
+
+	// run only if station's data are enabled
+	if bt.config.WeatherStations.Enabled {
+		for _, stationID := range bt.config.WeatherStations.Ids {
+			go func() {
+				ticker := time.NewTicker(bt.config.Period)
+				defer ticker.Stop()
+
+				for {
+					select {
+					case <-bt.done:
+						goto GotoFinish
+					case <-ticker.C:
+					}
+
+					err := bt.GetStationsData(stationID)
+					if err != nil {
+						//TODO: return?
+						logp.NewLogger(selector).Error(err)
+					}
+				}
+
+			GotoFinish:
+			}()
+		}
+	} else {
+		logp.NewLogger(selector).Info("Weather station data not enabled.")
+	}
+
+	<-bt.done
+	return nil
 }
 
 func (bt *Netatmobeat) Stop() {
+	logp.NewLogger(selector).Info("Stopping Netatmobeat.")
 	bt.client.Close()
 	close(bt.done)
 }

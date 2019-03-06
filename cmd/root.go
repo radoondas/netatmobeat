@@ -7,7 +7,7 @@ import (
 )
 
 // Name of the beat (netatmobeat).
-const Name = "netatmobeat"
+var Name = "netatmobeat"
 
 // RootCmd to handle beats cli
 var RootCmd = cmd.GenRootCmd(Name, "", beater.New)

@@ -1,3 +1,20 @@
+// Licensed to Elasticsearch B.V. under one or more contributor
+// license agreements. See the NOTICE file distributed with
+// this work for additional information regarding copyright
+// ownership. Elasticsearch B.V. licenses this file to you under
+// the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 // +build darwin freebsd linux windows
 
 package process
@@ -46,7 +63,7 @@ type Process struct {
 	cpuTotalPctNorm float64
 }
 
-// Stats stores the stats of preocesses on the host.
+// Stats stores the stats of processes on the host.
 type Stats struct {
 	Procs        []string
 	ProcsMap     ProcsMap
@@ -76,7 +93,7 @@ func newProcess(pid int, cmdline string, env common.MapStr) (*Process, error) {
 	}
 
 	exe := sigar.ProcExe{}
-	if err := exe.Get(pid); err != nil && !sigar.IsNotImplemented(err) && !os.IsPermission(err) {
+	if err := exe.Get(pid); err != nil && !sigar.IsNotImplemented(err) && !os.IsPermission(err) && !os.IsNotExist(err) {
 		return nil, fmt.Errorf("error getting process exe for pid=%d: %v", pid, err)
 	}
 
@@ -345,7 +362,7 @@ func (procStats *Stats) matchProcess(name string) bool {
 	return false
 }
 
-// Init initizalizes a Stats instance. It returns erros if the provided process regexes
+// Init initializes a Stats instance. It returns errors if the provided process regexes
 // cannot be compiled.
 func (procStats *Stats) Init() error {
 	procStats.ProcsMap = make(ProcsMap)
