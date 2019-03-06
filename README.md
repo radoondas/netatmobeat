@@ -57,3 +57,8 @@ Configure your output and/or monitoring options
 ```
 ./netatmobeat -c netatmobeat.yml -e 
 ```
+
+## Visualisations
+This is an example of temperature visualisation
+
+![Map](docs/img/map_vis.png)
