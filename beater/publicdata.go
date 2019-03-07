@@ -118,7 +118,7 @@ func (bt *Netatmobeat) GetRegionData(region config.Region) error {
 		panic(err)
 	}
 
-	transformedData := bt.TransformPublucData(sdata, region.Name, region.Description)
+	transformedData := bt.TransformPublicData(sdata, region.Name, region.Description)
 
 	for _, data := range transformedData {
 		//logp.NewLogger(selector).Debug("Data: ", data)
@@ -138,7 +138,7 @@ func (bt *Netatmobeat) GetRegionData(region config.Region) error {
 	return nil
 }
 
-func (bt *Netatmobeat) TransformPublucData	(data PublicData, regionName string, regionDescription string) []common.MapStr {
+func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, regionDescription string) []common.MapStr {
 
 	stations := []common.MapStr{}
 
