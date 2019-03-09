@@ -3,10 +3,6 @@
 ############################# Netatmobeat ######################################
 
 netatmobeat:
-  # Defines how often an event is sent to the output
-  # 10 minutes is preferred time frame to query new data
-  period: 10m
-
   # Authentication configuration
   # Create application in https://dev.netatmo.com and paste values for authorisation
   client_id: "abcdefghijklmn"
@@ -20,6 +16,9 @@ netatmobeat:
   # response as they are provided from Netatmo cache.
   public_weather:
     enabled: true
+    # Defines how often an event is sent to the output
+    # 10 minutes is preferred time frame to query new data
+    period: 10m
     regions:
       - region:
         enabled: true
@@ -64,6 +63,7 @@ netatmobeat:
   # Feature not implemented yet and disabled in code
   weather_stations:
     enabled: false
+    period: 5m
     ids: [ "st:at:io:ni:dd" ]
 
 #================================ General =====================================

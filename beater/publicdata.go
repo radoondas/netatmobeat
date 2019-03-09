@@ -7,7 +7,6 @@ package beater
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/elastic/beats/libbeat/logp"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,6 +17,8 @@ import (
 
 	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/common"
+	"github.com/elastic/beats/libbeat/logp"
+
 	"github.com/radoondas/netatmobeat/config"
 )
 
@@ -168,8 +169,8 @@ func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, r
 							dt, _ := strconv.Atoi(k)
 							temperature := common.MapStr{
 								"timestamp": dt * 1000,
-								"value":        v[i],
-								"moduleId":     moduleId,
+								"value":     v[i],
+								"moduleId":  moduleId,
 							}
 							measures.Put(t, temperature)
 							//fmt.Println(temp)
@@ -179,8 +180,8 @@ func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, r
 							humidity := common.MapStr{
 								//"mesTimestamp": time.Unix(int64(dt), 0).String(),
 								"timestamp": dt * 1000,
-								"value":        v[i],
-								"moduleId":     moduleId,
+								"value":     v[i],
+								"moduleId":  moduleId,
 							}
 							measures.Put(t, humidity)
 							//fmt.Println(hum)
@@ -190,8 +191,8 @@ func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, r
 							pressure := common.MapStr{
 								//"mesTimestamp": time.Unix(int64(dt), 0).String(),
 								"timestamp": dt * 1000,
-								"value":        v[i],
-								"moduleId":     moduleId,
+								"value":     v[i],
+								"moduleId":  moduleId,
 							}
 							measures.Put(t, pressure)
 							//fmt.Println(press)
@@ -207,16 +208,16 @@ func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, r
 						"windStrength": ms.Wind_strength,
 						"gustStrength": ms.Gust_strength,
 						"gustAngle":    ms.Gust_angle,
-						"timestamp": ms.Wind_timestamp * 1000,
+						"timestamp":    ms.Wind_timestamp * 1000,
 					}
 					measures.Put("wind", wind)
 				} else if ms.Rain_timestamp != 0 {
 					rain := common.MapStr{
-						"moduleId":     moduleId,
-						"timestamp": ms.Rain_timestamp * 1000,
-						"rain_24h":     ms.Rain_24h,
-						"rain_60min":   ms.Rain_60min,
-						"rain_live":    ms.Rain_live,
+						"moduleId":   moduleId,
+						"timestamp":  ms.Rain_timestamp * 1000,
+						"rain_24h":   ms.Rain_24h,
+						"rain_60min": ms.Rain_60min,
+						"rain_live":  ms.Rain_live,
 					}
 					measures.Put("rain", rain)
 				}

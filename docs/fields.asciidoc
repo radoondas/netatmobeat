@@ -550,7 +550,7 @@ None
 [float]
 == netatmo fields
 
-aa
+Netatmo data
 
 
 *`netatmo.station_id`*::
@@ -570,8 +570,6 @@ Station id
 --
 type: short
 
-required: True
-
 Mark
 
 
@@ -586,6 +584,87 @@ required: True
 
 Tye of the data source
 
+
+--
+
+*`netatmo.station_type`*::
++
+--
+type: keyword
+
+Station type
+
+--
+
+*`netatmo.module_name`*::
++
+--
+type: keyword
+
+Module name
+
+--
+
+*`netatmo.station_name`*::
++
+--
+type: keyword
+
+Station name
+
+--
+
+*`netatmo.module_id`*::
++
+--
+type: keyword
+
+Module ID
+
+--
+
+*`netatmo.last_message`*::
++
+--
+type: date
+
+Last message
+
+--
+
+*`netatmo.last_seen`*::
++
+--
+type: date
+
+Last seen
+
+--
+
+*`netatmo.rf_status`*::
++
+--
+type: integer
+
+rf_status
+
+--
+
+*`netatmo.battery_vp`*::
++
+--
+type: integer
+
+battery_vp
+
+--
+
+*`netatmo.battery_percent`*::
++
+--
+type: integer
+
+battery_percent
 
 --
 
@@ -872,6 +951,126 @@ Gust strength
 type: float
 
 Gust angle
+
+--
+
+[float]
+== stationdata fields
+
+Station data
+
+
+
+*`netatmo.stationdata.time_utc`*::
++
+--
+type: date
+
+--
+
+*`netatmo.stationdata.temperature`*::
++
+--
+type: float
+
+Temperature
+
+--
+
+*`netatmo.stationdata.co2`*::
++
+--
+type: float
+
+--
+
+*`netatmo.stationdata.humidity`*::
++
+--
+type: float
+
+Humidity
+
+--
+
+*`netatmo.stationdata.noise`*::
++
+--
+type: float
+
+Noise
+
+--
+
+*`netatmo.stationdata.pressure`*::
++
+--
+type: float
+
+Presure
+
+--
+
+*`netatmo.stationdata.absolutePressure`*::
++
+--
+type: float
+
+Absolute Pressure
+
+--
+
+*`netatmo.stationdata.min_temp`*::
++
+--
+type: float
+
+Min Temp
+
+--
+
+*`netatmo.stationdata.max_temp`*::
++
+--
+type: float
+
+Max Temp
+
+--
+
+*`netatmo.stationdata.date_min_temp`*::
++
+--
+type: date
+
+Date Min Temp
+
+--
+
+*`netatmo.stationdata.date_max_temp`*::
++
+--
+type: date
+
+Date Max Temp
+
+--
+
+*`netatmo.stationdata.temp_trend`*::
++
+--
+type: keyword
+
+Temperature Trend
+
+--
+
+*`netatmo.stationdata.pressure_trend`*::
++
+--
+type: keyword
+
+Pressure Trend
 
 --
 

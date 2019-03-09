@@ -4,7 +4,7 @@
   fields:
     - name: netatmo
       type: group
-      description: aa
+      description: Netatmo data
       fields:
         - name: station_id
           type: keyword
@@ -13,7 +13,6 @@
             Station id
         - name: mark
           type: short
-          required: true
           description: >
             Mark
         - name: source_type
@@ -21,6 +20,33 @@
           required: true
           description: >
             Tye of the data source
+        - name: station_type
+          type: keyword
+          description: Station type
+        - name: module_name
+          type: keyword
+          description: Module name
+        - name: station_name
+          type: keyword
+          description: Station name
+        - name: module_id
+          type: keyword
+          description: Module ID
+        - name: last_message
+          type: date
+          description: Last message
+        - name: last_seen
+          type: date
+          description: Last seen
+        - name: rf_status
+          type: integer
+          description: rf_status
+        - name: battery_vp
+          type: integer
+          description: battery_vp
+        - name: battery_percent
+          type: integer
+          description: battery_percent
         - name: place
           type: group
           description: >
@@ -141,3 +167,47 @@
                     - name: gustAngle
                       type: float
                       description: Gust angle
+        - name: stationdata
+          type: group
+          description: >
+            Station data
+          fields:
+            - name: time_utc
+              type: date
+              desctiption: Time of measurement in UTC
+            - name: temperature
+              type: float
+              description: Temperature
+            - name: co2
+              type: float
+              desxcription: CO2
+            - name: humidity
+              type: float
+              description: Humidity
+            - name: noise
+              type: float
+              description: Noise
+            - name: pressure
+              type: float
+              description: Presure
+            - name: absolutePressure
+              type: float
+              description: Absolute Pressure
+            - name: min_temp
+              type: float
+              description: Min Temp
+            - name: max_temp
+              type: float
+              description: Max Temp
+            - name: date_min_temp
+              type: date
+              description: Date Min Temp
+            - name: date_max_temp
+              type: date
+              description: Date Max Temp
+            - name: temp_trend
+              type: keyword
+              description: Temperature Trend
+            - name: pressure_trend
+              type: keyword
+              description: Pressure Trend

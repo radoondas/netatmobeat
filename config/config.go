@@ -6,7 +6,6 @@ package config
 import "time"
 
 type Config struct {
-	Period          time.Duration   `config:"period"`
 	ClientId        string          `config:"client_id"`
 	ClientSecret    string          `config:"client_secret"`
 	Username        string          `config:"username"`
@@ -16,13 +15,15 @@ type Config struct {
 }
 
 type WeatherStations struct {
-	Enabled bool     `config:"enabled"`
-	Ids     []string `config:"ids"`
+	Enabled bool          `config:"enabled"`
+	Ids     []string      `config:"ids"`
+	Period  time.Duration `config:"period"`
 }
 
 type PublicWeather struct {
-	Enabled bool     `config:"enabled"`
-	Regions []Region `config:"regions"`
+	Enabled bool          `config:"enabled"`
+	Regions []Region      `config:"regions"`
+	Period  time.Duration `config:"period"`
 }
 
 type Region struct {
@@ -36,7 +37,7 @@ type Region struct {
 }
 
 var DefaultConfig = Config{
-	Period:   1 * time.Second,
+	//Period:   1 * time.Second,
 	Username: "",
 	Password: "",
 }

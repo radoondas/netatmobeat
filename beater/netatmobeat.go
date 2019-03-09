@@ -96,7 +96,7 @@ func (bt *Netatmobeat) Run(b *beat.Beat) error {
 			logp.NewLogger(selector).Info("* Region: ", region.Name, " Enabled: ", region.Enabled)
 			if region.Enabled {
 				go func(region config.Region) {
-					ticker := time.NewTicker(bt.config.Period)
+					ticker := time.NewTicker(bt.config.PublicWeather.Period)
 					defer ticker.Stop()
 
 					for {
@@ -121,32 +121,32 @@ func (bt *Netatmobeat) Run(b *beat.Beat) error {
 	}
 
 	// run only if station's data are enabled
-	//if bt.config.WeatherStations.Enabled {
-	//	for _, stationID := range bt.config.WeatherStations.Ids {
-	//		go func() {
-	//			ticker := time.NewTicker(bt.config.Period)
-	//			defer ticker.Stop()
-	//
-	//			for {
-	//				select {
-	//				case <-bt.done:
-	//					goto GotoFinish
-	//				case <-ticker.C:
-	//				}
-	//
-	//				err := bt.GetStationsData(stationID)
-	//				if err != nil {
-	//					//TODO: return?
-	//					logp.NewLogger(selector).Error(err)
-	//				}
-	//			}
-	//
-	//		GotoFinish:
-	//		}()
-	//	}
-	//} else {
-	//	logp.NewLogger(selector).Info("Weather station data not enabled.")
-	//}
+	if bt.config.WeatherStations.Enabled {
+		for _, stationID := range bt.config.WeatherStations.Ids {
+			go func() {
+				ticker := time.NewTicker(bt.config.WeatherStations.Period)
+				defer ticker.Stop()
+
+				for {
+					select {
+					case <-bt.done:
+						goto GotoFinish
+					case <-ticker.C:
+					}
+
+					err := bt.GetStationsData(stationID)
+					if err != nil {
+						//TODO: return?
+						logp.NewLogger(selector).Error(err)
+					}
+				}
+
+			GotoFinish:
+			}()
+		}
+	} else {
+		logp.NewLogger(selector).Info("Weather station data not enabled.")
+	}
 
 	<-bt.done
 	return nil

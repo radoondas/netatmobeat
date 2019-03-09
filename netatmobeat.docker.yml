@@ -1,17 +1,13 @@
 netatmobeat:
-  # Defines how often an event is sent to the output
-  period: 10m
-
-  # Authentication configuration
   client_id: "abcdefghijklmn"
   client_secret: "mysecretfromapp"
 
-  # username/password to your https://dev.netatmo.com account
   username: "user@email"
   password: "password"
 
   public_weather:
     enabled: true
+    period: 10m
     regions:
       - region:
         enabled: true
@@ -55,6 +51,7 @@ netatmobeat:
 
   weather_stations:
     enabled: false
+    period: 5m
     ids: [ "70:ee:50:28:90:aa" ]
 processors:
 - add_cloud_metadata: ~
