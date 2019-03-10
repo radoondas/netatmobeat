@@ -5,7 +5,6 @@ package beater
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/common"
+	"github.com/elastic/beats/libbeat/logp"
 )
 
 const (
@@ -167,7 +167,7 @@ func (bt *Netatmobeat) GetStationsData(stationID string) error {
 				"netatmo": data,
 			},
 		}
-		//logp.NewLogger(selector).Debug("Event: ", event)
+		logp.NewLogger(selector).Debug("Event: ", event)
 		bt.client.Publish(event)
 		//logp.NewLogger(selector).Info("Event sent")
 	}
@@ -209,7 +209,7 @@ func (bt *Netatmobeat) TransformStationData(data StationsData) []common.MapStr {
 			"source_type":  "stationdata",
 			"stationdata":  dd,
 		}
-		fmt.Printf("Main unit: %+v \n", measureMainUnit)
+		logp.NewLogger(selector).Debug("Main unit: ", measureMainUnit)
 
 		modulesMeasurements = append(modulesMeasurements, measureMainUnit)
 
@@ -245,7 +245,7 @@ func (bt *Netatmobeat) TransformStationData(data StationsData) []common.MapStr {
 			}
 
 			modulesMeasurements = append(modulesMeasurements, measureModule)
-			fmt.Printf("Module unit %s: %+v\n", module.Module_name, measureModule)
+			logp.NewLogger(selector).Debug("Module unit ", module.Module_name, ": ", measureModule)
 		}
 	}
 	return modulesMeasurements
