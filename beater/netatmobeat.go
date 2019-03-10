@@ -2,12 +2,14 @@ package beater
 
 import (
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/logp"
+
 	"github.com/radoondas/netatmobeat/config"
-	"log"
-	"time"
 )
 
 const (

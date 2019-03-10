@@ -17,21 +17,22 @@ For docker image `docker pull radoondas/netatmobeat`
 ## Configuration
 
 Configure authentication after you create application in https://dev.netatmo.com and paste values for your application.
-```
+```yaml
   client_id: "abcdefghijklmn"
   client_secret: "mysecretfromapp"
 ```
 
  Username/password to your Netatmo dev account
-```
+```yaml
   username: "user@email"
   password: "password"
 ```
 
 Public weather configuration. Define regions you want to gather data from. Regions are not exact shapes in terms of a response as they are provided from Netatmo cache.
-```
+```yaml
   public_weather:
     enabled: true
+    period: 10m
     regions:
       - region:
         enabled: true
@@ -50,6 +51,15 @@ Public weather configuration. Define regions you want to gather data from. Regio
         lon_sw: -9.438251
 ```
 
+Station data configuration requires at least one station ID in order to pull data from. YOu have to specify also Period for how often you want to pull data. I suggest 5m.
+
+```yaml
+  weather_stations:
+    enabled: false
+    period: 5m
+    ids: [ "st:at:io:ni:dd" ]
+```
+
 Configure your output and/or monitoring options
 
 ## Run
@@ -62,3 +72,6 @@ Configure your output and/or monitoring options
 This is an example of temperature visualisation
 
 ![Map](docs/img/map_vis.png)
+
+## Build
+If you want to build Netatmobeat from scratch, follow [build](BUILD.md) documentation.
