@@ -27,21 +27,6 @@ copy-vendor:
 	cp -R ${BEAT_GOPATH}/src/github.com/elastic/beats vendor/github.com/elastic/
 	rm -rf vendor/github.com/elastic/beats/.git
 
-.PHONY: git-init
-git-init:
-	git init
-	git add README.md CONTRIBUTING.md
-	git commit -m "Initial commit"
-	git add LICENSE
-	git commit -m "Add the LICENSE"
-	git add .gitignore
-	git commit -m "Add git settings"
-	git add .
-	git reset -- .travis.yml
-	git commit -m "Add netatmobeat"
-	git add .travis.yml
-	git commit -m "Add Travis CI"
-
 # This is called by the beats packer before building starts
 .PHONY: before-build
 before-build:
