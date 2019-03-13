@@ -51,7 +51,7 @@ Public weather configuration. Define regions you want to gather data from. Regio
         lon_sw: -9.438251
 ```
 
-Station data configuration requires at least one station ID in order to pull data from. YOu have to specify also Period for how often you want to pull data. I suggest 5m.
+Station data configuration requires at least one station ID in order to pull data from. You have to specify also Period for how often you want to pull data. I suggest 5m.
 
 ```yaml
   weather_stations:
