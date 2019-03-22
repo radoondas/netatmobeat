@@ -2,18 +2,22 @@
 
 Welcome to Netatmobeat. 
 
-
-Ensure that this folder is at the following location:
-`${GOPATH}/github.com/radoondas/netatmobeat`
-
 ## Getting Started with Netatmobeat
 
 ### Requirements
 
 * [Golang](https://golang.org/dl/) 1.10
 
+### Clone
 
-For further development, check out the [beat developer guide](https://www.elastic.co/guide/en/beats/libbeat/current/new-beat.html).
+To clone Netatmobeat from the git repository, run the following commands:
+
+```
+mkdir -p ${GOPATH}/github.com/<github-user>/netatmobeat
+cd ${GOPATH}/github.com/<github-user>/netatmobeat
+git clone https://github.com/radoondas/netatmobeat
+```
+
 
 ### Build
 
@@ -76,17 +80,6 @@ To clean up the build directory and generated artifacts, run:
 
 ```
 make clean
-```
-
-
-### Clone
-
-To clone Netatmobeat from the git repository, run the following commands:
-
-```
-mkdir -p ${GOPATH}/github.com/radoondas/netatmobeat
-cd ${GOPATH}/github.com/radoondas/netatmobeat
-git clone https://github.com/radoondas/netatmobeat
 ```
 
 

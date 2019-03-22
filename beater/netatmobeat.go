@@ -76,16 +76,16 @@ func (bt *Netatmobeat) Run(b *beat.Beat) error {
 		defer ticker.Stop()
 
 		for {
-			select {
-			case <-bt.done:
-				goto GotoFinish
-			case <-ticker.C:
-			}
-
 			ct := time.Now().UTC().Unix()
 			logp.NewLogger(selector).Debug("Time difference for refresh: ", ct-bt.creds.LastAuthTime)
 			if (ct - bt.creds.LastAuthTime) >= authExpireThreshold {
 				bt.RefreshAccessToken()
+			}
+
+			select {
+			case <-bt.done:
+				goto GotoFinish
+			case <-ticker.C:
 			}
 		}
 	GotoFinish:
@@ -102,18 +102,18 @@ func (bt *Netatmobeat) Run(b *beat.Beat) error {
 					defer ticker.Stop()
 
 					for {
-						select {
-						case <-bt.done:
-							goto GotoFinish
-						case <-ticker.C:
-						}
-
 						logp.NewLogger(selector).Debug("** Region: ", region.Description, " Name: ", region.Name)
 						err := bt.GetRegionData(region)
 
 						if err != nil {
 							//TODO: return?
 							logp.NewLogger(selector).Error(err)
+						}
+
+						select {
+						case <-bt.done:
+							goto GotoFinish
+						case <-ticker.C:
 						}
 					}
 				GotoFinish:
@@ -130,16 +130,16 @@ func (bt *Netatmobeat) Run(b *beat.Beat) error {
 				defer ticker.Stop()
 
 				for {
-					select {
-					case <-bt.done:
-						goto GotoFinish
-					case <-ticker.C:
-					}
-
 					err := bt.GetStationsData(stationID)
 					if err != nil {
 						//TODO: return?
 						logp.NewLogger(selector).Error(err)
+					}
+
+					select {
+					case <-bt.done:
+						goto GotoFinish
+					case <-ticker.C:
 					}
 				}
 
