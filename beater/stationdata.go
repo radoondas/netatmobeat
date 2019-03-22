@@ -5,6 +5,7 @@ package beater
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -143,25 +144,27 @@ func (bt *Netatmobeat) GetStationsData(stationID string) error {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		//panic(err)
 		log.Fatal(err)
+		return err
 	}
 
 	sdata := StationsData{}
 	err = json.Unmarshal([]byte(body), &sdata)
 	if err != nil {
-		panic(err)
+		fmt.Printf("error: %v", err)
+		return err
 	}
 
 	transformedData := bt.TransformStationData(sdata)
 
 	//logp.NewLogger(selector).Debug("Station data: ", transformedData)
 
+	ts := time.Now()
 	for _, data := range transformedData {
 		//logp.NewLogger(selector).Debug("Data: ", data)
 
 		event := beat.Event{
-			Timestamp: time.Now(),
+			Timestamp: ts,
 			Fields: common.MapStr{
 				"type":    "netatmobeat",
 				"netatmo": data,

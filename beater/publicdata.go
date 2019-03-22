@@ -110,22 +110,24 @@ func (bt *Netatmobeat) GetRegionData(region config.Region) error {
 	if err != nil {
 		//panic(err)
 		log.Fatal(err)
+		return err
 	}
 
 	sdata := PublicData{}
 	err = json.Unmarshal([]byte(body), &sdata)
 	if err != nil {
 		fmt.Printf("error: %v", err)
-		panic(err)
+		return err
 	}
 
 	transformedData := bt.TransformPublicData(sdata, region.Name, region.Description)
 
+	ts := time.Now()
 	for _, data := range transformedData {
 		//logp.NewLogger(selector).Debug("Data: ", data)
 
 		event := beat.Event{
-			Timestamp: time.Now(),
+			Timestamp: ts,
 			Fields: common.MapStr{
 				"type":    "netatmobeat",
 				"netatmo": data,
