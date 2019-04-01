@@ -184,6 +184,26 @@ Client IP address.
 
 --
 
+*`apache2.access.ssl.protocol`*::
++
+--
+type: keyword
+
+SSL protocol version.
+
+
+--
+
+*`apache2.access.ssl.cipher`*::
++
+--
+type: keyword
+
+SSL cipher name.
+
+
+--
+
 *`apache2.access.user_name`*::
 +
 --
@@ -949,6 +969,17 @@ elasticsearch Module
 
 
 
+*`elasticsearch.node.id`*::
++
+--
+type: keyword
+
+example: DSiWcTyeThWtUXLB9J0BMw
+
+ID of the node
+
+--
+
 *`elasticsearch.node.name`*::
 +
 --
@@ -1043,6 +1074,17 @@ The IP address from which the request originated
 
 --
 
+*`elasticsearch.audit.origin_port`*::
++
+--
+type: integer
+
+example: 9300
+
+The TCP port from which the request originated
+
+--
+
 *`elasticsearch.audit.principal`*::
 +
 --
@@ -1066,7 +1108,7 @@ The authentication realm
 *`elasticsearch.audit.roles`*::
 +
 --
-type: array
+type: keyword
 
 example: ['kibana_user', 'beats_admin']
 
@@ -1096,14 +1138,47 @@ The REST endpoint URI
 
 --
 
+*`elasticsearch.audit.uri_params`*::
++
+--
+type: text
+
+example: {username=jacknich2}
+
+REST URI parameters
+
+--
+
 *`elasticsearch.audit.indices`*::
 +
 --
-type: array
+type: keyword
 
 example: ['foo-2019.01.04', 'foo-2019.01.03', 'foo-2019.01.06']
 
 Indices accessed by action
+
+--
+
+*`elasticsearch.audit.request_id`*::
++
+--
+type: keyword
+
+example: WzL_kb6VSvOhAq0twPvHOQ
+
+Unique ID of request
+
+--
+
+*`elasticsearch.audit.request_method`*::
++
+--
+type: keyword
+
+example: GET
+
+Method of HTTP request
 
 --
 
@@ -1126,6 +1201,17 @@ type: text
 example: body
 
 The body of the request, if enabled
+
+--
+
+*`elasticsearch.audit.user_realm`*::
++
+--
+type: keyword
+
+example: __attach
+
+The name of the realm that authenticated the user
 
 --
 
@@ -1427,14 +1513,36 @@ example:
 
 --
 
-*`elasticsearch.server.gc_overhead`*::
+*`elasticsearch.server.gc.overhead_seq`*::
 +
 --
 type: long
 
-example: 
+example: 3449992
 
+Sequence number
 
+--
+
+*`elasticsearch.server.gc.collection_duration.ms`*::
++
+--
+type: float
+
+example: 1600
+
+Time spent in GC, in milliseconds
+
+--
+
+*`elasticsearch.server.gc.observation_duration.ms`*::
++
+--
+type: float
+
+example: 1800
+
+Total time over which collection was observed, in milliseconds
 
 --
 
@@ -2058,12 +2166,42 @@ Host architecture (e.g. x86_64, arm, ppc, mips).
 
 --
 
+*`host.containerized`*::
++
+--
+type: boolean
+
+If the host is a container.
+
+
+--
+
 *`host.os.platform`*::
 +
 --
 type: keyword
 
 OS platform (e.g. centos, ubuntu, windows).
+
+
+--
+
+*`host.os.name`*::
++
+--
+type: keyword
+
+Operating system name (e.g. "Mac OS X").
+
+
+--
+
+*`host.os.build`*::
++
+--
+type: keyword
+
+OS build information (e.g. "18D109").
 
 
 --
@@ -3235,6 +3373,17 @@ The pid of the process.
 
 --
 
+*`event.outcome`*::
++
+--
+type: keyword
+
+The outcome of the event.
+If the event describes an action, this fields contains the outcome of that action. Examples outcomes are `success` and `failure`. Warning: In future versions of ECS, we plan to provide a list of acceptable values for this field, please use with caution.
+
+
+--
+
 *`event.severity`*::
 +
 --
@@ -3295,6 +3444,15 @@ Log source path.
 
 --
 
+*`log.original`*::
++
+--
+type: keyword
+
+Field is not indexed.
+
+--
+
 *`event.created`*::
 +
 --
@@ -3305,12 +3463,45 @@ event.created contains the date on which the event was created. In case of log e
 
 --
 
+*`event.duration`*::
++
+--
+type: long
+
+format: duration
+
+Duration of the event in nanoseconds.
+If event.start and event.end are known this value should be the difference between the end and start time.
+
+
+--
+
+*`event.end`*::
++
+--
+type: date
+
+event.end contains the date when the event ended or when the activity was last observed.
+
+
+--
+
 *`event.type`*::
 +
 --
 type: keyword
 
 A type given to this kind of event which can be used for grouping.
+
+
+--
+
+*`event.start`*::
++
+--
+type: date
+
+event.start contains the date when the event started or when the activity was first observed.
 
 
 --
@@ -3337,6 +3528,18 @@ Elapsed time between request and response in milli seconds.
 
 --
 
+*`http.response.body.bytes`*::
++
+--
+type: long
+
+format: bytes
+
+Size in bytes of the response body.
+
+
+--
+
 *`http.response.content_length`*::
 +
 --
@@ -3358,6 +3561,18 @@ Request method.
 --
 
 
+*`source_ecs.bytes`*::
++
+--
+type: long
+
+format: bytes
+
+Bytes sent from the source to the destination.
+
+
+--
+
 *`source_ecs.ip`*::
 +
 --
@@ -3365,6 +3580,26 @@ type: ip
 
 IP address of the source.
 Can be one or multiple IPv4 or IPv6 addresses.
+
+
+--
+
+*`source_ecs.mac`*::
++
+--
+type: keyword
+
+MAC address of the source.
+
+
+--
+
+*`source_ecs.packets`*::
++
+--
+type: long
+
+Packets sent from the client to the server.
 
 
 --
@@ -3446,6 +3681,28 @@ Region ISO code.
 --
 
 
+*`destination.bytes`*::
++
+--
+type: long
+
+format: bytes
+
+Bytes sent from the destination to the source.
+
+
+--
+
+*`destination.domain`*::
++
+--
+type: keyword
+
+Destination domain.
+
+
+--
+
 *`destination.ip`*::
 +
 --
@@ -3453,6 +3710,26 @@ type: ip
 
 IP address of the destination.
 Can be one or multiple IPv4 or IPv6 addresses.
+
+
+--
+
+*`destination.mac`*::
++
+--
+type: keyword
+
+MAC address of the destination.
+
+
+--
+
+*`destination.packets`*::
++
+--
+type: long
+
+Packets sent from the destination to the source.
 
 
 --
@@ -3669,12 +3946,33 @@ URL fields provide a complete URL, with scheme, host, and path. The URL object c
 
 
 
+*`url.domain`*::
++
+--
+type: keyword
+
+Domain of the request, such as "www.elastic.co".
+In some cases a URL may refer to an IP and/or port directly, without a domain name. In this case, the IP address would go to the `domain` field.
+
+
+--
+
 *`url.hostname`*::
 +
 --
 type: keyword
 
 Hostname of the request, such as "elastic.co". In some cases a URL may refer to an IP and/or port directly, without a domain name. In this case, the IP address would go to the `hostname` field.
+
+
+--
+
+*`url.path`*::
++
+--
+type: keyword
+
+Path of the request, such as "/search".
 
 
 --
@@ -3701,6 +3999,68 @@ Path to the file.
 type: long
 
 File size in bytes (field is only added when `type` is `file`).
+
+--
+
+[float]
+== network fields
+
+The network is defined as the communication path over which a host or network event happens. The network.* fields should be populated with details about the network activity associated with an event.
+
+
+
+*`network.bytes`*::
++
+--
+type: long
+
+format: bytes
+
+Total bytes transferred in both directions. If `source.bytes` and `destination.bytes` are known, `network.bytes` is their sum.
+
+
+--
+
+*`network.packets`*::
++
+--
+type: long
+
+Total packets transferred in both directions. If `source.packets` and `destination.packets` are known, `network.packets` is their sum.
+
+
+--
+
+*`network.protocol`*::
++
+--
+type: keyword
+
+L7 Network protocol name. ex. http, lumberjack, transport protocol.
+The field value must be normalized to lowercase for querying. See "Lowercase Capitalization" in the "Implementing ECS" section.
+
+
+--
+
+*`network.transport`*::
++
+--
+type: keyword
+
+Same as network.iana_number, but instead using the Keyword name of the transport layer (udp, tcp, ipv6-icmp, etc.)
+The field value must be normalized to lowercase for querying. See "Lowercase Capitalization" in the "Implementing ECS"  section.
+
+
+--
+
+*`network.type`*::
++
+--
+type: keyword
+
+In the OSI Model this would be the Network Layer. ipv4, ipv6, ipsec, pim, etc
+The field value must be normalized to lowercase for querying. See "Lowercase Capitalization" in the "Implementing ECS" section.
+
 
 --
 
@@ -4096,12 +4456,34 @@ The number of rows scanned by the query.
 
 --
 
+*`mysql.slowlog.rows_affected`*::
++
+--
+type: long
+
+The number of rows modified by the query.
+
+
+--
+
 *`mysql.slowlog.timestamp`*::
 +
 --
 type: long
 
 The unix timestamp taken from the `SET timestamp` query.
+
+
+--
+
+*`mysql.slowlog.bytes_sent`*::
++
+--
+type: long
+
+format: bytes
+
+The size of the query result.
 
 
 --
@@ -4119,7 +4501,267 @@ The slow query.
 --
 type: long
 
-The connection ID for the query.
+The connection or thread ID for the query.
+
+
+--
+
+*`mysql.slowlog.schema`*::
++
+--
+type: keyword
+
+The schema where the slow query was executed.
+
+
+--
+
+*`mysql.slowlog.current_user`*::
++
+--
+type: keyword
+
+Current authenticated user, used to determine access privileges. Can differ from the value for user.
+
+
+--
+
+*`mysql.slowlog.last_errno`*::
++
+--
+type: keyword
+
+Last SQL error seen.
+
+
+--
+
+*`mysql.slowlog.killed`*::
++
+--
+type: keyword
+
+Code of the reason if the query was killed.
+
+
+--
+
+*`mysql.slowlog.query_cache_hit`*::
++
+--
+type: boolean
+
+Whether the query cache was hit.
+
+
+--
+
+*`mysql.slowlog.tmp_table`*::
++
+--
+type: boolean
+
+Whether a temporary table was used to resolve the query.
+
+
+--
+
+*`mysql.slowlog.tmp_table_on_disk`*::
++
+--
+type: boolean
+
+Whether the query needed temporary tables on disk.
+
+
+--
+
+*`mysql.slowlog.tmp_tables`*::
++
+--
+type: long
+
+Number of temporary tables created for this query
+
+
+--
+
+*`mysql.slowlog.tmp_disk_tables`*::
++
+--
+type: long
+
+Number of temporary tables created on disk for this query.
+
+
+--
+
+*`mysql.slowlog.tmp_table_sizes`*::
++
+--
+type: long
+
+format: bytes
+
+Size of temporary tables created for this query.
+
+--
+
+*`mysql.slowlog.filesort`*::
++
+--
+type: boolean
+
+Whether filesort optimization was used.
+
+
+--
+
+*`mysql.slowlog.filesort_on_disk`*::
++
+--
+type: boolean
+
+Whether filesort optimization was used and it needed temporary tables on disk.
+
+
+--
+
+*`mysql.slowlog.priority_queue`*::
++
+--
+type: boolean
+
+Whether a priority queue was used for filesort.
+
+
+--
+
+*`mysql.slowlog.full_scan`*::
++
+--
+type: boolean
+
+Whether a full table scan was needed for the slow query.
+
+
+--
+
+*`mysql.slowlog.full_join`*::
++
+--
+type: boolean
+
+Whether a full join was needed for the slow query (no indexes were used for joins).
+
+
+--
+
+*`mysql.slowlog.merge_passes`*::
++
+--
+type: long
+
+Number of merge passes executed for the query.
+
+
+--
+
+*`mysql.slowlog.log_slow_rate_type`*::
++
+--
+type: keyword
+
+Type of slow log rate limit, it can be `session` if the rate limit is applied per session, or `query` if it applies per query.
+
+
+--
+
+*`mysql.slowlog.log_slow_rate_limit`*::
++
+--
+type: keyword
+
+Slow log rate limit, a value of 100 means that one in a hundred queries or sessions are being logged.
+
+
+--
+
+[float]
+== innodb fields
+
+Contains fields relative to InnoDB engine
+
+
+
+*`mysql.slowlog.innodb.trx_id`*::
++
+--
+type: keyword
+
+Transaction ID
+
+
+--
+
+*`mysql.slowlog.innodb.io_r_ops`*::
++
+--
+type: long
+
+Number of page read operations.
+
+
+--
+
+*`mysql.slowlog.innodb.io_r_bytes`*::
++
+--
+type: long
+
+format: bytes
+
+Bytes read during page read operations.
+
+
+--
+
+*`mysql.slowlog.innodb.io_r_wait.sec`*::
++
+--
+type: long
+
+How long it took to read all needed data from storage.
+
+
+--
+
+*`mysql.slowlog.innodb.rec_lock_wait.sec`*::
++
+--
+type: long
+
+How long the query waited for locks.
+
+
+--
+
+*`mysql.slowlog.innodb.queue_wait.sec`*::
++
+--
+type: long
+
+How long the query waited to enter the InnoDB queue and to be executed once in the queue.
+
+
+--
+
+*`mysql.slowlog.innodb.pages_distinct`*::
++
+--
+type: long
+
+Approximated count of pages accessed to execute the query.
 
 
 --

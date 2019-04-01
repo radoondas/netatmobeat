@@ -21,11 +21,12 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/elastic/beats/libbeat/common"
-	"github.com/elastic/beats/libbeat/logp"
+	"github.com/elastic/beats/libbeat/beat"
 
 	"github.com/elastic/beats/heartbeat/look"
 	"github.com/elastic/beats/heartbeat/monitors"
+	"github.com/elastic/beats/libbeat/common"
+	"github.com/elastic/beats/libbeat/logp"
 )
 
 func init() {
@@ -48,15 +49,6 @@ func create(
 	// not supported on all OSes)
 	// TODO: replace icmp package base reader/sender using raw sockets with
 	//       OS specific solution
-
-	addJob := func(t monitors.Job, err error) error {
-		if err != nil {
-			return err
-		}
-		jobs = append(jobs, t)
-		return nil
-	}
-
 	ipVersion := config.Mode.Network()
 	if len(config.Hosts) > 0 && ipVersion == "" {
 		err := fmt.Errorf("pinging hosts requires ipv4 or ipv6 mode enabled")
@@ -87,25 +79,31 @@ func create(
 		}
 
 		settings := monitors.MakeHostJobSettings(jobName, host, config.Mode)
-		err := addJob(monitors.MakeByHostJob(settings, pingFactory))
+		job, err := monitors.MakeByHostJob(settings, pingFactory)
 		if err != nil {
 			return nil, 0, err
 		}
+
+		jobs = append(jobs, monitors.WithJobId(jobName, job))
 	}
 
-	return jobs, len(config.Hosts), nil
+	errWrappedJobs := monitors.WrapAll(jobs, monitors.WithErrAsField)
+	return errWrappedJobs, len(config.Hosts), nil
 }
 
-func createPingIPFactory(config *Config) func(*net.IPAddr) (common.MapStr, error) {
-	return func(ip *net.IPAddr) (common.MapStr, error) {
+func createPingIPFactory(config *Config) func(*beat.Event, *net.IPAddr) error {
+	return func(event *beat.Event, ip *net.IPAddr) error {
 		rtt, n, err := loop.ping(ip, config.Timeout, config.Wait)
-
-		fields := common.MapStr{"requests": n}
-		if err == nil {
-			fields["rtt"] = look.RTT(rtt)
+		if err != nil {
+			return err
 		}
 
-		event := common.MapStr{"icmp": fields}
-		return event, err
+		icmpFields := common.MapStr{"requests": n}
+		if err == nil {
+			icmpFields["rtt"] = look.RTT(rtt)
+			monitors.MergeEventFields(event, icmpFields)
+		}
+
+		return nil
 	}
 }

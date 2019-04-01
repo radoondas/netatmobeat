@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/elastic/beats/heartbeat/look"
+	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/outputs/transport"
 )
@@ -39,7 +40,7 @@ import (
 //    }
 //  }
 func TLSLayer(cfg *transport.TLSConfig, to time.Duration) Layer {
-	return func(event common.MapStr, next transport.Dialer) (transport.Dialer, error) {
+	return func(event *beat.Event, next transport.Dialer) (transport.Dialer, error) {
 		var timer timer
 
 		// Wrap next dialer so to start the timer when 'next' returns.
@@ -59,9 +60,9 @@ func TLSLayer(cfg *transport.TLSConfig, to time.Duration) Layer {
 
 			// TODO: extract TLS connection parameters from connection object.
 			timer.stop()
-			event.Put("tls.rtt.handshake", look.RTT(timer.duration()))
+			event.PutValue("tls.rtt.handshake", look.RTT(timer.duration()))
 
-			addCertMetdata(event, tlsConn.ConnectionState().VerifiedChains)
+			addCertMetdata(event.Fields, tlsConn.ConnectionState().VerifiedChains)
 
 			return conn, nil
 		}), nil

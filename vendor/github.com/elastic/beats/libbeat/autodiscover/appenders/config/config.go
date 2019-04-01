@@ -56,6 +56,7 @@ func NewConfigAppender(cfg *common.Config) (autodiscover.Appender, error) {
 	}
 
 	var cond conditions.Condition
+
 	if config.ConditionConfig != nil {
 		cond, err = conditions.NewCondition(config.ConditionConfig)
 		if err != nil {

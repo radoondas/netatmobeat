@@ -21,6 +21,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/elastic/go-ucfg/yaml"
@@ -79,17 +81,17 @@ func TestFieldsHasNode(t *testing.T) {
 }
 
 func TestFieldsHasKey(t *testing.T) {
-	tests := []struct {
+	tests := map[string]struct {
 		key    string
 		fields Fields
 		result bool
 	}{
-		{
+		"empty fields": {
 			key:    "test.find",
 			fields: Fields{},
 			result: false,
 		},
-		{
+		"unknown nested key": {
 			key: "test.find",
 			fields: Fields{
 				Field{Name: "test"},
@@ -97,7 +99,7 @@ func TestFieldsHasKey(t *testing.T) {
 			},
 			result: false,
 		},
-		{
+		"has": {
 			key: "test.find",
 			fields: Fields{
 				Field{
@@ -110,7 +112,7 @@ func TestFieldsHasKey(t *testing.T) {
 			},
 			result: true,
 		},
-		{
+		"no leave node": {
 			key: "test",
 			fields: Fields{
 				Field{
@@ -125,45 +127,39 @@ func TestFieldsHasKey(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		assert.Equal(t, test.result, test.fields.HasKey(test.key))
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, test.result, test.fields.HasKey(test.key))
+		})
 	}
 }
 
 func TestDynamicYaml(t *testing.T) {
-	tests := []struct {
+	tests := map[string]struct {
 		input  []byte
 		output Field
 		error  bool
 	}{
-		{
-			input: []byte(`
-name: test
-dynamic: true`),
+		"dynamic enabled": {
+			input: []byte(`{name: test, dynamic: true}`),
 			output: Field{
 				Name:    "test",
 				Dynamic: DynamicType{true},
 			},
 		},
-		{
-			input: []byte(`
-name: test
-dynamic: "true"`),
+		"dynamic enabled2": {
+			input: []byte(`{name: test, dynamic: "true"}`),
 			output: Field{
 				Name:    "test",
 				Dynamic: DynamicType{true},
 			},
 		},
-		{
-			input: []byte(`
-name: test
-dynamic: "blue"`),
+		"invalid setting": {
+			input: []byte(`{name: test, dynamic: "blue"}`),
 			error: true,
 		},
-		{
-			input: []byte(`
-name: test
-dynamic: "strict"`),
+		"strict mode": {
+			input: []byte(`{name: test, dynamic: "strict"}`),
 			output: Field{
 				Name:    "test",
 				Dynamic: DynamicType{"strict"},
@@ -171,18 +167,20 @@ dynamic: "strict"`),
 		},
 	}
 
-	for _, test := range tests {
-		keys := Field{}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			keys := Field{}
 
-		cfg, err := yaml.NewConfig(test.input)
-		assert.NoError(t, err)
-		err = cfg.Unpack(&keys)
+			cfg, err := yaml.NewConfig(test.input)
+			assert.NoError(t, err)
+			err = cfg.Unpack(&keys)
 
-		if err != nil {
-			assert.True(t, test.error)
-		} else {
-			assert.Equal(t, test.output.Dynamic, keys.Dynamic)
-		}
+			if err != nil {
+				assert.True(t, test.error)
+			} else {
+				assert.Equal(t, test.output.Dynamic, keys.Dynamic)
+			}
+		})
 	}
 }
 
@@ -240,6 +238,59 @@ func TestGetKeys(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Equal(t, test.keys, test.fields.GetKeys())
+	}
+}
+
+func TestFieldValidate(t *testing.T) {
+	tests := map[string]struct {
+		cfg   MapStr
+		field Field
+		err   bool
+	}{
+		"top level object type config": {
+			cfg:   MapStr{"object_type": "scaled_float", "object_type_mapping_type": "float", "scaling_factor": 10},
+			field: Field{ObjectType: "scaled_float", ObjectTypeMappingType: "float", ScalingFactor: 10},
+			err:   false,
+		},
+		"multiple object type configs": {
+			cfg: MapStr{"object_type_params": []MapStr{
+				{"object_type": "scaled_float", "object_type_mapping_type": "float", "scaling_factor": 100}}},
+			field: Field{ObjectTypeParams: []ObjectTypeCfg{{ObjectType: "scaled_float", ObjectTypeMappingType: "float", ScalingFactor: 100}}},
+			err:   false,
+		},
+		"invalid config mixing object_type and object_type_params": {
+			cfg: MapStr{
+				"object_type":        "scaled_float",
+				"object_type_params": []MapStr{{"object_type": "scaled_float", "object_type_mapping_type": "float"}}},
+			err: true,
+		},
+		"invalid config mixing object_type_mapping_type and object_type_params": {
+			cfg: MapStr{
+				"object_type_mapping_type": "float",
+				"object_type_params":       []MapStr{{"object_type": "scaled_float", "object_type_mapping_type": "float"}}},
+			err: true,
+		},
+		"invalid config mixing scaling_factor and object_type_params": {
+			cfg: MapStr{
+				"scaling_factor":     100,
+				"object_type_params": []MapStr{{"object_type": "scaled_float", "object_type_mapping_type": "float"}}},
+			err: true,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			cfg, err := NewConfigFrom(test.cfg)
+			require.NoError(t, err)
+			var f Field
+			err = cfg.Unpack(&f)
+			if test.err {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, test.field, f)
+			}
+		})
 	}
 }
 

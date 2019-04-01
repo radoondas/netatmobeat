@@ -25,6 +25,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -38,11 +39,16 @@ import (
 )
 
 func testTCPCheck(t *testing.T, host string, port uint16) *beat.Event {
-	config, err := common.NewConfigFrom(common.MapStr{
+	config := common.MapStr{
 		"hosts":   host,
 		"ports":   port,
 		"timeout": "1s",
-	})
+	}
+	return testTCPConfigCheck(t, config, host, port)
+}
+
+func testTCPConfigCheck(t *testing.T, configMap common.MapStr, host string, port uint16) *beat.Event {
+	config, err := common.NewConfigFrom(configMap)
 	require.NoError(t, err)
 
 	jobs, endpoints, err := create("tcp", config)
@@ -50,12 +56,13 @@ func testTCPCheck(t *testing.T, host string, port uint16) *beat.Event {
 
 	job := jobs[0]
 
-	event, _, err := job.Run()
+	event := &beat.Event{}
+	_, err = job.Run(event)
 	require.NoError(t, err)
 
 	require.Equal(t, 1, endpoints)
 
-	return &event
+	return event
 }
 
 func testTLSTCPCheck(t *testing.T, host string, port uint16, certFileName string) *beat.Event {
@@ -72,12 +79,13 @@ func testTLSTCPCheck(t *testing.T, host string, port uint16, certFileName string
 
 	job := jobs[0]
 
-	event, _, err := job.Run()
+	event := &beat.Event{}
+	_, err = job.Run(event)
 	require.NoError(t, err)
 
 	require.Equal(t, 1, endpoints)
 
-	return &event
+	return event
 }
 
 func setupServer(t *testing.T, serverCreator func(http.Handler) *httptest.Server) (*httptest.Server, uint16) {
@@ -199,4 +207,137 @@ func TestUnreachableEndpointJob(t *testing.T) {
 		)),
 		event.Fields,
 	)
+}
+
+// TestNXDomain tests that non-existent domains are correctly pinged.
+// Note, this depends on the system having a DNS resolver that doesn't hijack NXDOMAIN Results.
+func TestNXDomain(t *testing.T) {
+	host := "notadomain.notatld"
+	port := uint16(1234)
+	event := testTCPCheck(t, host, port)
+
+	mapvaltest.Test(
+		t,
+		mapval.Strict(mapval.Compose(
+			hbtest.ErrorChecks("no such host", "io"),
+			mapval.MustCompile(mapval.Map{
+				"monitor": mapval.Map{
+					"status":   "down",
+					"scheme":   "tcp",
+					"host":     host,
+					"id":       fmt.Sprintf("tcp-tcp@%s:%d", host, port),
+					"duration": mapval.Map{"us": mapval.IsDuration},
+				},
+				"resolve": mapval.Map{
+					"host": host,
+				},
+			}),
+		)),
+		event.Fields,
+	)
+}
+
+func TestCheckUp(t *testing.T) {
+	host, port, ip, closeEcho, err := startEchoServer(t)
+	require.NoError(t, err)
+	defer closeEcho()
+
+	configMap := common.MapStr{
+		"hosts":         host,
+		"ports":         port,
+		"timeout":       "1s",
+		"check.receive": "echo123",
+		"check.send":    "echo123",
+	}
+
+	event := testTCPConfigCheck(t, configMap, host, port)
+
+	mapvaltest.Test(
+		t,
+		mapval.Strict(mapval.Compose(
+			tcpMonitorChecks(host, ip, port, "up"),
+			hbtest.RespondingTCPChecks(port),
+			mapval.MustCompile(mapval.Map{
+				"resolve": mapval.Map{
+					"host":   "localhost",
+					"ip":     ip,
+					"rtt.us": mapval.IsDuration,
+				},
+				"tcp": mapval.Map{
+					"rtt.validate.us": mapval.IsDuration,
+				},
+			}),
+		)),
+		event.Fields,
+	)
+}
+
+func TestCheckDown(t *testing.T) {
+	host, port, ip, closeEcho, err := startEchoServer(t)
+	require.NoError(t, err)
+	defer closeEcho()
+
+	configMap := common.MapStr{
+		"hosts":         host,
+		"ports":         port,
+		"timeout":       "1s",
+		"check.receive": "BOOM", // should fail
+		"check.send":    "echo123",
+	}
+
+	event := testTCPConfigCheck(t, configMap, host, port)
+
+	mapvaltest.Test(
+		t,
+		mapval.Strict(mapval.Compose(
+			tcpMonitorChecks(host, ip, port, "down"),
+			hbtest.RespondingTCPChecks(port),
+			mapval.MustCompile(mapval.Map{
+				"resolve": mapval.Map{
+					"host":   "localhost",
+					"ip":     ip,
+					"rtt.us": mapval.IsDuration,
+				},
+				"tcp": mapval.Map{
+					"rtt.validate.us": mapval.IsDuration,
+				},
+				"error": mapval.Map{
+					"type":    "validate",
+					"message": "received string mismatch",
+				},
+			}),
+		)),
+		event.Fields,
+	)
+}
+
+// startEchoServer starts a simple TCP echo server for testing. Only handles a single connection once.
+// Note you MUST connect to this server exactly once to avoid leaking a goroutine. This is only useful
+// for the specific tests used here.
+func startEchoServer(t *testing.T) (host string, port uint16, ip string, close func() error, err error) {
+	// Simple echo server
+	listener, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		return "", 0, "", nil, err
+	}
+	go func() {
+		conn, err := listener.Accept()
+		require.NoError(t, err)
+		buf := make([]byte, 1024)
+		rlen, err := conn.Read(buf)
+		require.NoError(t, err)
+		wlen, err := conn.Write(buf[:rlen])
+		require.NoError(t, err)
+		// Normally we'd retry partial writes, but for tests this is OK
+		require.Equal(t, wlen, rlen)
+	}()
+
+	ip, portStr, err := net.SplitHostPort(listener.Addr().String())
+	portUint64, err := strconv.ParseUint(portStr, 10, 16)
+	if err != nil {
+		listener.Close()
+		return "", 0, "", nil, err
+	}
+
+	return "localhost", uint16(portUint64), ip, listener.Close, nil
 }
