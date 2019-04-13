@@ -6,9 +6,6 @@ title = "Mage Documentation"
 theme = "learn"
 defaultContentLanguageInSubdir= true
 
-[Permalinks]
-	blog = "/blog/:year/:month/:filename/"
-
 [params]
   editURL = "https://github.com/magefile/mage/edit/master/site/content/"
   description = "Mage"

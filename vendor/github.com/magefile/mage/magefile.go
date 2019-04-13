@@ -1,8 +1,5 @@
 //+build mage
 
-// This is the build script for Mage. The install target is all you really need.
-// The release target is for generating offial releases and is really only
-// useful to project admins.
 package main
 
 import (
@@ -10,24 +7,25 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 	"time"
 
-	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
 
 // Runs "go install" for mage.  This generates the version info the binary.
 func Install() error {
+	ldf, err := flags()
+	if err != nil {
+		return err
+	}
+
 	name := "mage"
 	if runtime.GOOS == "windows" {
 		name += ".exe"
 	}
-
-	gocmd := mg.GoCmd()
-	gopath, err := sh.Output(gocmd, "env", "GOPATH")
+	gopath, err := sh.Output("go", "env", "GOPATH")
 	if err != nil {
 		return fmt.Errorf("can't determine GOPATH: %v", err)
 	}
@@ -44,23 +42,19 @@ func Install() error {
 	// install` turns into a no-op, and `go install -a` fails on people's
 	// machines that have go installed in a non-writeable directory (such as
 	// normal OS installs in /usr/bin)
-	return sh.RunV(gocmd, "build", "-o", path, "-ldflags="+flags(), "github.com/magefile/mage")
+	return sh.RunV("go", "build", "-o", path, "-ldflags="+ldf, "github.com/magefile/mage")
 }
-
-var releaseTag = regexp.MustCompile(`^v1\.[0-9]+\.[0-9]+$`)
 
 // Generates a new release.  Expects the TAG environment variable to be set,
 // which will create a new tag with that name.
 func Release() (err error) {
-	tag := os.Getenv("TAG")
-	if !releaseTag.MatchString(tag) {
-		return errors.New("TAG environment variable must be in semver v1.x.x format, but was " + tag)
+	if os.Getenv("TAG") == "" {
+		return errors.New("MSG and TAG environment variables are required")
 	}
-
-	if err := sh.RunV("git", "tag", "-a", tag, "-m", tag); err != nil {
+	if err := sh.RunV("git", "tag", "-a", "$TAG"); err != nil {
 		return err
 	}
-	if err := sh.RunV("git", "push", "origin", tag); err != nil {
+	if err := sh.RunV("git", "push", "origin", "$TAG"); err != nil {
 		return err
 	}
 	defer func() {
@@ -77,14 +71,14 @@ func Clean() error {
 	return sh.Rm("dist")
 }
 
-func flags() string {
+func flags() (string, error) {
 	timestamp := time.Now().Format(time.RFC3339)
 	hash := hash()
 	tag := tag()
 	if tag == "" {
 		tag = "dev"
 	}
-	return fmt.Sprintf(`-X "github.com/magefile/mage/mage.timestamp=%s" -X "github.com/magefile/mage/mage.commitHash=%s" -X "github.com/magefile/mage/mage.gitTag=%s"`, timestamp, hash, tag)
+	return fmt.Sprintf(`-X "github.com/magefile/mage/mage.timestamp=%s" -X "github.com/magefile/mage/mage.commitHash=%s" -X "github.com/magefile/mage/mage.gitTag=%s"`, timestamp, hash, tag), nil
 }
 
 // tag returns the git tag for the current branch or "" if none.

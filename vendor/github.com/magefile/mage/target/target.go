@@ -8,14 +8,9 @@ import (
 
 // Path reports if any of the sources have been modified more recently
 // than the destination.  Path does not descend into directories, it literally
-// just checks the modtime of each thing you pass to it.  If the destination
-// file doesn't exist, it always returns true and nil.  It's an error if any of
-// the sources don't exist.
+// just checks the modtime of each thing you pass to it.
 func Path(dst string, sources ...string) (bool, error) {
 	stat, err := os.Stat(dst)
-	if os.IsNotExist(err) {
-		return true, nil
-	}
 	if err != nil {
 		return false, err
 	}
@@ -31,22 +26,18 @@ func Path(dst string, sources ...string) (bool, error) {
 	return false, nil
 }
 
-// Dir reports whether any of the sources have been modified more recently than
-// the destination.  If a source or destination is a directory, modtimes of
-// files under those directories are compared instead.  If the destination file
-// doesn't exist, it always returns true and nil.  It's an error if any of the
-// sources don't exist.
+// Dir reports whether any of the sources have been modified
+// more recently than the destination.  If a source or destination is
+// a directory, modtimes of files under those directories are compared
+// instead.
 func Dir(dst string, sources ...string) (bool, error) {
 	stat, err := os.Stat(dst)
-	if os.IsNotExist(err) {
-		return true, nil
-	}
 	if err != nil {
 		return false, err
 	}
 	srcTime := stat.ModTime()
 	if stat.IsDir() {
-		srcTime, err = calDirModTimeRecursive(dst, stat)
+		srcTime, err = calDirModTimeRecursive(stat)
 		if err != nil {
 			return false, err
 		}
@@ -65,9 +56,9 @@ func Dir(dst string, sources ...string) (bool, error) {
 	return false, nil
 }
 
-func calDirModTimeRecursive(name string, dir os.FileInfo) (time.Time, error) {
+func calDirModTimeRecursive(dir os.FileInfo) (time.Time, error) {
 	t := dir.ModTime()
-	ferr := filepath.Walk(name, func(path string, info os.FileInfo, err error) error {
+	ferr := filepath.Walk(dir.Name(), func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -82,13 +73,8 @@ func calDirModTimeRecursive(name string, dir os.FileInfo) (time.Time, error) {
 	return t, nil
 }
 
-type source struct {
-	path string
-	info os.FileInfo
-}
-
 type depTargets struct {
-	src    []source
+	src    []os.FileInfo
 	hasdir bool
 	latest time.Time
 }
@@ -103,7 +89,7 @@ func loadTargets(targets []string) (*depTargets, error) {
 		if stat.IsDir() {
 			d.hasdir = true
 		}
-		d.src = append(d.src, source{path: v, info: stat})
+		d.src = append(d.src, stat)
 		if stat.ModTime().After(d.latest) {
 			d.latest = stat.ModTime()
 		}
@@ -120,10 +106,10 @@ func (d *depTargets) modTimeDir() (time.Time, error) {
 		return d.latest, nil
 	}
 	var err error
-	for _, src := range d.src {
-		t := src.info.ModTime()
-		if src.info.IsDir() {
-			t, err = calDirModTimeRecursive(src.path, src.info)
+	for _, i := range d.src {
+		t := i.ModTime()
+		if i.IsDir() {
+			t, err = calDirModTimeRecursive(i)
 			if err != nil {
 				return time.Time{}, err
 			}

@@ -1,7 +1,5 @@
 // +build mage
 
-// This is a comment on the package which should get turned into output with the
-// list of targets.
 package main
 
 import (

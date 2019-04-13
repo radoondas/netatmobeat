@@ -128,16 +128,10 @@ func run(env map[string]string, stdout, stderr io.Writer, cmd string, args ...st
 	c.Stdin = os.Stdin
 	log.Println("exec:", cmd, strings.Join(args, " "))
 	err = c.Run()
-	return CmdRan(err), ExitStatus(err), err
+	return cmdRan(err), ExitStatus(err), err
 }
 
-// CmdRan examines the error to determine if it was generated as a result of a
-// command running via os/exec.Command.  If the error is nil, or the command ran
-// (even if it exited with a non-zero exit code), CmdRan reports true.  If the
-// error is an unrecognized type, or it is an error from exec.Command that says
-// the command failed to run (usually due to the command not existing or not
-// being executable), it reports false.
-func CmdRan(err error) bool {
+func cmdRan(err error) bool {
 	if err == nil {
 		return true
 	}

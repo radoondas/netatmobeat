@@ -27,8 +27,6 @@ magefiles based on OS, arch, etc, whether in the filename or in the +build line.
 ```go
 // +build mage
 
-// A comment on the package will be output when you list the targets of a
-// magefile.
 package main
 
 import (
@@ -52,8 +50,7 @@ func Target() {
     log.Printf("Hi!")
 }
 
-// A var named Default indicates which target is the default.  If there is no 
-// default, running mage will list the targets available.
+// A var named Default indicates which target is the default.
 var Default = Install
 
 
@@ -70,11 +67,8 @@ func Build(ctx context.Context) {
 
 ```
 
-```plain
+```
 $ mage -l
-A comment on the package will be output when you list the targets of a
-magefile.
-
 Targets:
   install*   Build target is any exported function with zero args with no return or an error return.
   target     The first sentence in the comment will be the short help text shown with mage -l.
@@ -82,7 +76,7 @@ Targets:
 * default target
 ```
 
-```plain
+```
 $ mage -h target
 mage target:
 
