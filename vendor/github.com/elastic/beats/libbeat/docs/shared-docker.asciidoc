@@ -5,8 +5,7 @@ Docker images for {beatname_uc} are available from the Elastic Docker
 registry. The base image is https://hub.docker.com/_/centos/[centos:7].
 
 A list of all published Docker images and tags is available at
-https://www.docker.elastic.co[www.docker.elastic.co]. The source code is in
-{dockergithub}[GitHub].
+https://www.docker.elastic.co[www.docker.elastic.co]. 
 
 These images are free to use under the Elastic license. They contain open source 
 and free commercial features and access to paid commercial features.  
@@ -39,6 +38,8 @@ available under the Apache 2.0 license. To download the images, go to
 https://www.docker.elastic.co[www.docker.elastic.co]. 
 
 endif::[]
+
+ifndef::apm-server[]
 
 ==== Run the {beatname_uc} setup
 
@@ -89,6 +90,8 @@ using this syntax:
 -E cloud.auth=elastic:<elastic password>
 --------------------------------------------
 
+endif::apm-server[]
+
 ==== Configure {beatname_uc} on Docker
 
 The Docker image provides several methods for configuring {beatname_uc}. The
@@ -102,7 +105,7 @@ Download this example configuration file as a starting point:
 
 ["source","sh",subs="attributes,callouts"]
 ------------------------------------------------
-curl -L -O https://raw.githubusercontent.com/elastic/beats/{doc-branch}/deploy/docker/{beatname_lc}.docker.yml
+curl -L -O {dockerconfig}
 ------------------------------------------------
 
 ===== Volume-mounted configuration
@@ -172,7 +175,7 @@ docker run -d \
 --------------------------------------------
 endif::[]
 
-ifeval::["{beatname_lc}"=="heartbeat"]
+ifeval::[("{beatname_lc}"=="heartbeat") or ("{beatname_lc}"=="apm-server")]
 ["source", "sh", subs="attributes"]
 --------------------------------------------
 docker run -d \

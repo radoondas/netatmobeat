@@ -58,7 +58,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.99.130.239",
           "locality": "private",
           "mac": "00:00:00:00:00:00",
@@ -124,7 +124,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.99.252.50",
           "locality": "private",
           "mac": "00:00:00:00:00:00",
@@ -190,7 +190,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.99.130.239",
           "locality": "private",
           "mac": "00:00:00:00:00:00",
@@ -256,7 +256,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.98.243.20",
           "locality": "private",
           "mac": "00:00:00:00:00:00",
@@ -322,7 +322,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.99.168.140",
           "locality": "private",
           "mac": "00:00:00:00:00:00",
@@ -388,7 +388,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.98.243.20",
           "locality": "private",
           "mac": "00:00:00:00:00:00",
@@ -454,7 +454,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.99.168.140",
           "locality": "private",
           "mac": "00:00:00:00:00:00",
@@ -520,7 +520,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.98.243.20",
           "locality": "private",
           "mac": "00:00:00:00:00:00",

@@ -47,11 +47,6 @@ func GolangCrossBuild() error {
 	return mage.GolangCrossBuild(mage.DefaultGolangCrossBuildArgs())
 }
 
-// CrossBuildXPack cross-builds the beat with XPack for all target platforms.
-func CrossBuildXPack() error {
-	return mage.CrossBuildXPack()
-}
-
 // BuildGoDaemon builds the go-daemon binary (use crossBuildGoDaemon).
 func BuildGoDaemon() error {
 	return mage.BuildGoDaemon()
@@ -75,15 +70,16 @@ func Clean() error {
 // Package packages the Beat for distribution.
 // Use SNAPSHOT=true to build snapshots.
 // Use PLATFORMS to control the target platforms.
+// Use VERSION_QUALIFIER to control the version qualifier.
 func Package() {
 	start := time.Now()
 	defer func() { fmt.Println("package ran for", time.Since(start)) }()
 
-	mage.UseElasticBeatPackaging()
+	mage.UseElasticBeatOSSPackaging()
 	customizePackaging()
 
 	mg.Deps(Update)
-	mg.Deps(CrossBuild, CrossBuildXPack, CrossBuildGoDaemon)
+	mg.Deps(CrossBuild, CrossBuildGoDaemon)
 	mg.SerialDeps(mage.Package, TestPackages)
 }
 
@@ -114,6 +110,29 @@ func GoTestUnit(ctx context.Context) error {
 // Use RACE_DETECTOR=true to enable the race detector.
 func GoTestIntegration(ctx context.Context) error {
 	return mage.GoTest(ctx, mage.DefaultGoTestIntegrationArgs())
+}
+
+// ExportDashboard exports a dashboard and writes it into the correct directory
+//
+// Required ENV variables:
+// * MODULE: Name of the module
+// * ID: Dashboard id
+func ExportDashboard() error {
+	return mage.ExportDashboard()
+}
+
+// FieldsDocs generates docs/fields.asciidoc containing all fields
+// (including x-pack).
+func FieldsDocs() error {
+	inputs := []string{
+		mage.OSSBeatDir("module"),
+		mage.XPackBeatDir("module"),
+	}
+	output := mage.CreateDir("build/fields/fields.all.yml")
+	if err := mage.GenerateFieldsYAMLTo(output, inputs...); err != nil {
+		return err
+	}
+	return mage.Docs.FieldDocs(output)
 }
 
 // -----------------------------------------------------------------------------

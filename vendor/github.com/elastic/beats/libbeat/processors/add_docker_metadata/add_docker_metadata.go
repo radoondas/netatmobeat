@@ -39,7 +39,7 @@ import (
 
 const (
 	processorName         = "add_docker_metadata"
-	dockerContainerIDKey  = "docker.container.id"
+	dockerContainerIDKey  = "container.id"
 	cgroupCacheExpiration = 5 * time.Minute
 )
 
@@ -86,10 +86,10 @@ func buildDockerMetadataProcessor(cfg *common.Config, watcherConstructor docker.
 	var sourceProcessor processors.Processor
 	if config.MatchSource {
 		var procConf, _ = common.NewConfigFrom(map[string]interface{}{
-			"field":     "source",
-			"separator": "/",
+			"field":     "log.file.path",
+			"separator": string(os.PathSeparator),
 			"index":     config.SourceIndex,
-			"target":    "docker.container.id",
+			"target":    dockerContainerIDKey,
 		})
 		sourceProcessor, err = actions.NewExtractField(procConf)
 		if err != nil {
@@ -122,10 +122,10 @@ func lazyCgroupCacheInit(d *addDockerMetadata) {
 func (d *addDockerMetadata) Run(event *beat.Event) (*beat.Event, error) {
 	var cid string
 	var err error
-
-	// Extract CID from the filepath contained in the "source" field.
+	// Extract CID from the filepath contained in the "log.file.path" field.
 	if d.sourceProcessor != nil {
-		if event.Fields["source"] != nil {
+		lfp, _ := event.Fields.GetValue("log.file.path")
+		if lfp != nil {
 			event, err = d.sourceProcessor.Run(event)
 			if err != nil {
 				d.log.Debugf("Error while extracting container ID from source path: %v", err)
@@ -168,10 +168,6 @@ func (d *addDockerMetadata) Run(event *beat.Event) (*beat.Event, error) {
 	container := d.watcher.Container(cid)
 	if container != nil {
 		meta := common.MapStr{}
-		metaIface, ok := event.Fields["docker"]
-		if ok {
-			meta = metaIface.(common.MapStr)
-		}
 
 		if len(container.Labels) > 0 {
 			labels := common.MapStr{}
@@ -187,9 +183,9 @@ func (d *addDockerMetadata) Run(event *beat.Event) (*beat.Event, error) {
 		}
 
 		meta.Put("container.id", container.ID)
-		meta.Put("container.image", container.Image)
+		meta.Put("container.image.name", container.Image)
 		meta.Put("container.name", container.Name)
-		event.Fields["docker"] = meta.Clone()
+		event.Fields.DeepUpdate(meta.Clone())
 	} else {
 		d.log.Debugf("Container not found: cid=%s", cid)
 	}

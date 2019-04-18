@@ -7,7 +7,7 @@
 ++++
 
 If you want {beatname_uc} to connect to a cluster that has
-{securitydoc}/xpack-security.html[{security}] enabled, there are extra
+{stack-ov}/elasticsearch-security.html[{security}] enabled, there are extra
 configuration steps:
 
 . <<beats-basic-auth>>.
@@ -42,7 +42,7 @@ you plan to monitor {beatname_uc} in {kib} and have not yet set up the
 password, set it up now.
 
 For more information about {security}, see
-{xpack-ref}/xpack-security.html[Securing the {stack}].
+{xpack-ref}/elasticsearch-security.html[Securing the {stack}].
 
 [[feature-roles]]
 === {beatname_uc} features that require authorization

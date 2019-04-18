@@ -29,12 +29,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/elastic/beats/filebeat/reader"
-	"github.com/elastic/beats/filebeat/reader/multiline"
-	"github.com/elastic/beats/filebeat/reader/readfile"
-	"github.com/elastic/beats/filebeat/reader/readfile/encoding"
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/common/match"
+	"github.com/elastic/beats/libbeat/reader"
+	"github.com/elastic/beats/libbeat/reader/multiline"
+	"github.com/elastic/beats/libbeat/reader/readfile"
+	"github.com/elastic/beats/libbeat/reader/readfile/encoding"
 )
 
 type logReaderConfig struct {
@@ -264,7 +264,7 @@ func runSimulate(url string, pipeline map[string]interface{}, logs []string, ver
 	for _, s := range sources {
 		d := common.MapStr{
 			"_index":  "index",
-			"_type":   "doc",
+			"_type":   "_doc",
 			"_id":     "id",
 			"_source": s,
 		}

@@ -69,7 +69,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.108.219.53",
           "locality": "private",
           "port": 45587

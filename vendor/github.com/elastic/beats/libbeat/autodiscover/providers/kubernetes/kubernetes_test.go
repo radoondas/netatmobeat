@@ -463,7 +463,7 @@ func TestEmitEvent(t *testing.T) {
 
 			select {
 			case event := <-listener.Events():
-				assert.Equal(t, test.Expected, event)
+				assert.Equal(t, test.Expected, event, test.Message)
 			case <-time.After(2 * time.Second):
 				if test.Expected != nil {
 					t.Fatal("Timeout while waiting for event")

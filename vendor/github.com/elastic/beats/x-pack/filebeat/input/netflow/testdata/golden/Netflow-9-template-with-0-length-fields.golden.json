@@ -62,7 +62,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "239.255.255.250",
           "locality": "public",
           "port": 0
@@ -131,7 +131,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.1.80",
           "locality": "private",
           "port": 0
@@ -200,7 +200,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "239.255.255.250",
           "locality": "public",
           "port": 0
@@ -269,7 +269,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.1.95",
           "locality": "private",
           "port": 0
@@ -338,7 +338,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "239.255.255.250",
           "locality": "public",
           "port": 0
@@ -407,7 +407,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.1.95",
           "locality": "private",
           "port": 0
@@ -476,7 +476,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "239.255.255.250",
           "locality": "public",
           "port": 0
@@ -545,7 +545,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.1.33",
           "locality": "private",
           "port": 0
@@ -614,7 +614,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "239.255.255.250",
           "locality": "public",
           "port": 0
@@ -683,7 +683,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.1.33",
           "locality": "private",
           "port": 0

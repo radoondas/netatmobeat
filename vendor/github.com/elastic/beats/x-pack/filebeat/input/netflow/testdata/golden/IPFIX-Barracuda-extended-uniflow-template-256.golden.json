@@ -70,7 +70,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.236.5.4",
           "locality": "private",
           "mac": "00:50:56:b9:26:46",
@@ -148,7 +148,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "64.235.151.76",
           "locality": "public",
           "mac": "00:00:00:00:00:00",

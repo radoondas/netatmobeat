@@ -320,7 +320,7 @@ func flowToBeatEvent(flow record.Record) (event beat.Event) {
 		event.Fields["flow"] = ecsFlow
 	}
 	if len(ecsSource) > 0 {
-		event.Fields["source_ecs"] = ecsSource
+		event.Fields["source"] = ecsSource
 	}
 	if len(ecsDest) > 0 {
 		event.Fields["destination"] = ecsDest

@@ -29,7 +29,7 @@ You can create roles from the **Management / Roles** UI in {kib} or through the
 ifeval::["{beatname_lc}"!="filebeat"]
 ["source","sh",subs="attributes,callouts"]
 ---------------------------------------------------------------
-POST _xpack/security/role/{beat_default_index_prefix}_writer
+POST _security/role/{beat_default_index_prefix}_writer
 {
   "cluster": ["manage_index_templates","monitor"],
   "indices": [
@@ -47,7 +47,7 @@ endif::[]
 ifeval::["{beatname_lc}"=="filebeat"]
 ["source","sh",subs="attributes,callouts"]
 ---------------------------------------------------------------
-POST _xpack/security/role/{beat_default_index_prefix}_writer
+POST _security/role/{beat_default_index_prefix}_writer
 {
   "cluster": ["manage_index_templates","monitor","manage_ingest_pipelines"], <1>
   "indices": [
@@ -79,12 +79,12 @@ rollover indices:
 --
 ["source","sh",subs="attributes"]
 ---------------------------------------------------------------
-POST _xpack/security/role/{beatname_lc}_ilm
+POST _xpack/security/role/{beat_default_index_prefix}_ilm
 {
   "cluster": ["manage_ilm"],
   "indices": [
     {
-      "names": [ "{beatname_lc}-*","shrink-{beatname_lc}-*"],
+      "names": [ "{beat_default_index_prefix}-*","shrink-{beat_default_index_prefix}-*"],
       "privileges": ["write","create_index","manage","manage_ilm"]
     }
   ]
@@ -110,7 +110,7 @@ named ++{beat_default_index_prefix}_internal++ that has the
 --
 ["source","sh",subs="attributes,callouts"]
 ---------------------------------------------------------------
-POST /_xpack/security/user/{beat_default_index_prefix}_internal
+POST /_security/user/{beat_default_index_prefix}_internal
 {
   "password" : "{pwd}",
   "roles" : [ "{beat_default_index_prefix}_writer","kibana_user"],

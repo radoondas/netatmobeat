@@ -11,11 +11,77 @@ changes, but there are breaking changes between major versions (e.g. 5.x to
 
 See the following topics for a description of breaking changes:
 
+* <<breaking-changes-7.0>>
 * <<breaking-changes-6.3>>
 * <<breaking-changes-6.2>>
 * <<breaking-changes-6.1>>
 * <<breaking-changes-6.0>>
-* {auditbeat}/auditbeat-breaking-changes.html[Breaking changes in Auditbeat 6.2]
+* {auditbeat-ref}/auditbeat-breaking-changes.html[Breaking changes in Auditbeat 6.2]
+
+[[breaking-changes-7.0]]
+
+=== Breaking changes in 7.0
+
+This section discusses the main changes that you should be aware of if you
+upgrade the Beats to version 7.0. {see-relnotes}
+
+==== HTML escaping is disabled by default
+
+Starting with verion 7.0, embedded HTML or special symbols like `<` and `>` are
+no longer escaped by default when publishing events.
+To configure the old behavior of escaping HTML, set `escape_html:
+true` in the output configuration.
+
+//tag::notable-breaking-changes[]
+==== Filebeat registry
+
+Starting with version 7.0, Filebeat stores the registry in a sub-directory.
+The directory is configured using the `filebeat.registry.path` setting.
+If Filebeat finds an old registry file at the configured location, it will
+automatically migrate the registry file to the new format.
+
+The settings `filebeat.registry_flush` and `filebeat.registry_file_permission`
+have been renamed to `filebeat.registry.flush` and
+`filebeat.registry.file_permission`.
+
+//end::notable-breaking-changes[]
+
+==== ILM support
+
+Support for Index Lifecycle Management is GA with Beats version 7.0. This
+release moved most ILM settings from the `output.elasticsearch.ilm` namespace to
+the `setup.ilm` namespace.
+
+//tag::notable-breaking-changes[]
+
+==== Field name changes
+
+include::./field-name-changes.asciidoc[]
+
+//end::notable-breaking-changes[]
+
+==== Auditbeat type changes
+
+The Auditbeat JSON data types produced by the output have been changed to align
+with the data types used in the Elasticsearch index template.
+
+.Auditbeat Type Changes in 7.0
+[frame="topbot",options="header"]
+|======================
+|Field|Old Type|New Type
+|`file.gid`     |number |string
+|`file.uid`     |number |string
+|`process.pid`  |string |number
+|`process.ppid` |string |number
+|======================
+
+[[breaking-changes-6.7]]
+=== Breaking changes in 6.7
+
+The data structure used to store Beats central management data in Kibana has changed. As a result of the
+template changes, enrolled Beats and configuration tags created prior to 6.7 will not work until you migrate them to the new format.
+To migrate to the new format, use the https://github.com/elastic/migrate-management-beats/releases[migration tool] we've created.
+For more information, see the https://github.com/elastic/migrate-management-beats/blob/master/README.md[documentation] about the tool. {see-relnotes}
 
 [[breaking-changes-6.3]]
 === Breaking changes in 6.3
@@ -287,7 +353,7 @@ templates will not be applied.
 
 The `document_type` setting, from the prospector configuration, was removed
 because the `_type` concept is being
-{elasticsearch}/removal-of-types.html[removed from Elasticsearch]. Instead of
+{ref}/removal-of-types.html[removed from Elasticsearch]. Instead of
 the `document_type` setting, you can use a custom field.
 
 This has led also to the rename of the `input_type` configuration setting to

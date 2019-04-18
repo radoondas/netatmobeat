@@ -63,7 +63,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "bytes": 132,
           "ip": "172.16.32.201",
           "locality": "private",
@@ -141,7 +141,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "bytes": 172,
           "ip": "172.16.32.100",
           "locality": "private",

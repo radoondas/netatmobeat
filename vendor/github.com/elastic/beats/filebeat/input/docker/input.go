@@ -25,6 +25,7 @@ import (
 	"github.com/elastic/beats/filebeat/input"
 	"github.com/elastic/beats/filebeat/input/log"
 	"github.com/elastic/beats/libbeat/common"
+	"github.com/elastic/beats/libbeat/logp"
 
 	"github.com/pkg/errors"
 )
@@ -42,17 +43,32 @@ func NewInput(
 	outletFactory channel.Connector,
 	context input.Context,
 ) (input.Input, error) {
+	logger := logp.NewLogger("docker")
+
+	// Wrap log input with custom docker settings
 	config := defaultConfig
 	if err := cfg.Unpack(&config); err != nil {
 		return nil, errors.Wrap(err, "reading docker input config")
 	}
 
-	// Wrap log input with custom docker settings
-	if len(config.Containers.IDs) == 0 {
+	// Docker input should make sure that no callers should ever pass empty strings as container IDs
+	// Hence we explicitly make sure that we catch such things and print stack traces in the event of
+	// an invocation so that it can be fixed.
+	var ids []string
+	for _, containerID := range config.Containers.IDs {
+		if containerID != "" {
+			ids = append(ids, containerID)
+		} else {
+			logger.Error("Docker container ID can't be empty for Docker input config")
+			logger.Debugw("Empty docker container ID was received", logp.Stack("stacktrace"))
+		}
+	}
+
+	if len(ids) == 0 {
 		return nil, errors.New("Docker input requires at least one entry under 'containers.ids'")
 	}
 
-	for idx, containerID := range config.Containers.IDs {
+	for idx, containerID := range ids {
 		cfg.SetString("paths", idx, path.Join(config.Containers.Path, containerID, "*.log"))
 	}
 

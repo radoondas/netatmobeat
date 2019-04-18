@@ -18,6 +18,7 @@
 package tcp
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -74,7 +75,12 @@ func NewInput(
 		forwarder.Send(event)
 	}
 
-	server, err := tcp.New(&config.Config, cb)
+	splitFunc := tcp.SplitFunc([]byte(config.LineDelimiter))
+	if splitFunc == nil {
+		return nil, fmt.Errorf("unable to create splitFunc for delimiter %s", config.LineDelimiter)
+	}
+
+	server, err := tcp.New(&config.Config, splitFunc, cb)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +131,6 @@ func createEvent(raw []byte, metadata inputsource.NetworkMetadata) *util.Data {
 		Timestamp: time.Now(),
 		Fields: common.MapStr{
 			"message": string(raw),
-			"source":  metadata.RemoteAddr.String(),
 			"log": common.MapStr{
 				"source": common.MapStr{
 					"address": metadata.RemoteAddr.String(),

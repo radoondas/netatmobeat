@@ -53,6 +53,7 @@ var (
 	GOARM        = EnvOr("GOARM", "")
 	Platform     = MakePlatformAttributes(GOOS, GOARCH, GOARM)
 	BinaryExt    = ""
+	XPackDir     = "../x-pack"
 	RaceDetector = false
 	TestCoverage = false
 
@@ -63,6 +64,7 @@ var (
 	BeatVendor      = EnvOr("BEAT_VENDOR", "Elastic")
 	BeatLicense     = EnvOr("BEAT_LICENSE", "ASL 2.0")
 	BeatURL         = EnvOr("BEAT_URL", "https://www.elastic.co/products/beats/"+BeatName)
+	BeatUser        = EnvOr("BEAT_USER", "root")
 
 	Snapshot bool
 
@@ -71,7 +73,7 @@ var (
 
 	FuncMap = map[string]interface{}{
 		"beat_doc_branch":   BeatDocBranch,
-		"beat_version":      BeatVersion,
+		"beat_version":      BeatQualifiedVersion,
 		"commit":            CommitHash,
 		"date":              BuildDate,
 		"elastic_beats_dir": ElasticBeatsDir,
@@ -128,6 +130,7 @@ func varMap(args ...map[string]interface{}) map[string]interface{} {
 		"GOARM":           GOARM,
 		"Platform":        Platform,
 		"BinaryExt":       BinaryExt,
+		"XPackDir":        XPackDir,
 		"BeatName":        BeatName,
 		"BeatServiceName": BeatServiceName,
 		"BeatIndexPrefix": BeatIndexPrefix,
@@ -135,6 +138,7 @@ func varMap(args ...map[string]interface{}) map[string]interface{} {
 		"BeatVendor":      BeatVendor,
 		"BeatLicense":     BeatLicense,
 		"BeatURL":         BeatURL,
+		"BeatUser":        BeatUser,
 		"Snapshot":        Snapshot,
 		"Qualifier":       versionQualifier,
 	}
@@ -152,18 +156,20 @@ func varMap(args ...map[string]interface{}) map[string]interface{} {
 func dumpVariables() (string, error) {
 	var dumpTemplate = `## Variables
 
-GOOS            = {{.GOOS}}
-GOARCH          = {{.GOARCH}}
-GOARM           = {{.GOARM}}
-Platform        = {{.Platform}}
-BinaryExt       = {{.BinaryExt}}
-BeatName        = {{.BeatName}}
-BeatServiceName = {{.BeatServiceName}}
-BeatIndexPrefix = {{.BeatIndexPrefix}}
-BeatDescription = {{.BeatDescription}}
-BeatVendor      = {{.BeatVendor}}
-BeatLicense     = {{.BeatLicense}}
-BeatURL         = {{.BeatURL}}
+GOOS             = {{.GOOS}}
+GOARCH           = {{.GOARCH}}
+GOARM            = {{.GOARM}}
+Platform         = {{.Platform}}
+BinaryExt        = {{.BinaryExt}}
+XPackDir         = {{.XPackDir}}
+BeatName         = {{.BeatName}}
+BeatServiceName  = {{.BeatServiceName}}
+BeatIndexPrefix  = {{.BeatIndexPrefix}}
+BeatDescription  = {{.BeatDescription}}
+BeatVendor       = {{.BeatVendor}}
+BeatLicense      = {{.BeatLicense}}
+BeatURL          = {{.BeatURL}}
+BeatUser         = {{.BeatUser}}
 VersionQualifier = {{.Qualifier}}
 
 ## Functions
@@ -248,8 +254,10 @@ func findElasticBeatsDir() (string, error) {
 
 	const devToolsImportPath = elasticBeatsImportPath + "/dev-tools/mage"
 
-	// Search in project vendor directories.
+	// Search in project vendor directories. Order is relevant
 	searchPaths := []string{
+		// beats directory of apm-server
+		filepath.Join(repo.RootDir, "_beats/dev-tools/vendor"),
 		filepath.Join(repo.RootDir, repo.SubDir, "vendor", devToolsImportPath),
 		filepath.Join(repo.RootDir, "vendor", devToolsImportPath),
 	}
@@ -261,24 +269,6 @@ func findElasticBeatsDir() (string, error) {
 	}
 
 	return "", errors.Errorf("failed to find %v in the project's vendor", devToolsImportPath)
-}
-
-// SetElasticBeatsDir explicitly sets the location of the Elastic Beats
-// directory. If not set then it will attempt to locate it.
-func SetElasticBeatsDir(dir string) {
-	elasticBeatsDirLock.Lock()
-	defer elasticBeatsDirLock.Unlock()
-
-	info, err := os.Stat(dir)
-	if err != nil {
-		panic(errors.Wrapf(err, "failed to read elastic beats dir at %v", dir))
-	}
-
-	if !info.IsDir() {
-		panic(errors.Errorf("elastic beats dir=%v is not a directory", dir))
-	}
-
-	elasticBeatsDirValue = filepath.Clean(dir)
 }
 
 var (
@@ -335,21 +325,6 @@ func BeatQualifiedVersion() (string, error) {
 // BeatVersion returns the Beat's version. The value can be overridden by
 // setting BEAT_VERSION in the environment.
 func beatVersion() (string, error) {
-	beatVersionOnce.Do(func() {
-		beatVersionValue = os.Getenv("BEAT_VERSION")
-		if beatVersionValue != "" {
-			return
-		}
-
-		beatVersionValue, beatVersionErr = getBuildVariableSources().GetBeatVersion()
-	})
-
-	return beatVersionValue, beatVersionErr
-}
-
-// BeatVersion returns the Beat's version. The value can be overridden by
-// setting BEAT_VERSION in the environment.
-func BeatVersion() (string, error) {
 	beatVersionOnce.Do(func() {
 		beatVersionValue = os.Getenv("BEAT_VERSION")
 		if beatVersionValue != "" {

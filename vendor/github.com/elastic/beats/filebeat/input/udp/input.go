@@ -74,7 +74,6 @@ func NewInput(
 			},
 			Fields: common.MapStr{
 				"message": string(data),
-				"source":  metadata.RemoteAddr.String(),
 				"log": common.MapStr{
 					"source": common.MapStr{
 						"address": metadata.RemoteAddr.String(),

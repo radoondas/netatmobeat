@@ -57,7 +57,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.8.197",
           "locality": "private",
           "port": 123
@@ -121,7 +121,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.35.143",
           "locality": "private",
           "port": 46518
@@ -185,7 +185,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.6.11",
           "locality": "private",
           "port": 80
@@ -249,7 +249,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.128.17",
           "locality": "private",
           "port": 123
@@ -313,7 +313,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.8.220",
           "locality": "private",
           "port": 80
@@ -377,7 +377,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "172.20.4.199",
           "locality": "private",
           "port": 10240
@@ -441,7 +441,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "172.20.4.1",
           "locality": "private",
           "port": 53
@@ -505,7 +505,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "172.20.4.30",
           "locality": "private",
           "port": 0
@@ -569,7 +569,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.8.105",
           "locality": "private",
           "port": 22
@@ -633,7 +633,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "172.20.4.30",
           "locality": "private",
           "port": 59571
@@ -697,7 +697,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.7.11",
           "locality": "private",
           "port": 48378
@@ -761,7 +761,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.183.199",
           "locality": "private",
           "port": 6667
@@ -825,7 +825,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.8.34",
           "locality": "private",
           "port": 0
@@ -889,7 +889,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "172.20.5.191",
           "locality": "private",
           "port": 42502
@@ -953,7 +953,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "172.20.4.1",
           "locality": "private",
           "port": 33332
@@ -1017,7 +1017,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "172.20.4.1",
           "locality": "private",
           "port": 33332
@@ -1081,7 +1081,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "172.30.0.1",
           "locality": "private",
           "port": 53298
@@ -1145,7 +1145,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "172.30.0.1",
           "locality": "private",
           "port": 53298
@@ -1209,7 +1209,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.6.1",
           "locality": "private",
           "port": 48172
@@ -1273,7 +1273,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.6.1",
           "locality": "private",
           "port": 48172
@@ -1337,7 +1337,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.7.1",
           "locality": "private",
           "port": 48935
@@ -1401,7 +1401,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.7.1",
           "locality": "private",
           "port": 48935
@@ -1465,7 +1465,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.8.1",
           "locality": "private",
           "port": 51931
@@ -1529,7 +1529,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.8.1",
           "locality": "private",
           "port": 51931
@@ -1593,7 +1593,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.20.0.1",
           "locality": "private",
           "port": 43454
@@ -1657,7 +1657,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.20.0.1",
           "locality": "private",
           "port": 43454
@@ -1721,7 +1721,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.10.1",
           "locality": "private",
           "port": 52837
@@ -1785,7 +1785,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.10.10.1",
           "locality": "private",
           "port": 52837
@@ -1845,7 +1845,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -1903,7 +1903,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -1961,7 +1961,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2019,7 +2019,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2077,7 +2077,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2135,7 +2135,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2193,7 +2193,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2251,7 +2251,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2309,7 +2309,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2367,7 +2367,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2425,7 +2425,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2483,7 +2483,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2541,7 +2541,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2599,7 +2599,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2657,7 +2657,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2715,7 +2715,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2773,7 +2773,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },
@@ -2831,7 +2831,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "port": 5678
         }
       },

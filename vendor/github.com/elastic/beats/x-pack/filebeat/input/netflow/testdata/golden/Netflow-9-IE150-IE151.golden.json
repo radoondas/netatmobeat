@@ -56,7 +56,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.0.3",
           "locality": "private",
           "port": 137
@@ -119,7 +119,7 @@
         "observer": {
           "ip": "192.0.2.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.0.4",
           "locality": "private",
           "port": 58130

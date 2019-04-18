@@ -29,11 +29,11 @@ import (
 type Config struct {
 	// Paths stores the paths to the journal files to be read.
 	Paths []string `config:"paths"`
-	// MaxBackoff is the limit of the backoff time.
-	MaxBackoff time.Duration `config:"max_backoff" validate:"min=0,nonzero"`
 	// Backoff is the current interval to wait before
 	// attemting to read again from the journal.
 	Backoff time.Duration `config:"backoff" validate:"min=0,nonzero"`
+	// MaxBackoff is the limit of the backoff time.
+	MaxBackoff time.Duration `config:"max_backoff" validate:"min=0,nonzero"`
 	// Seek is the method to read from journals.
 	Seek config.SeekMode `config:"seek"`
 	// CursorSeekFallback sets where to seek if registry file is not available.
@@ -51,7 +51,7 @@ var (
 	// DefaultConfig is the defaults for an inputs
 	DefaultConfig = Config{
 		Backoff:            1 * time.Second,
-		MaxBackoff:         60 * time.Second,
+		MaxBackoff:         20 * time.Second,
 		Seek:               config.SeekCursor,
 		CursorSeekFallback: config.SeekHead,
 	}

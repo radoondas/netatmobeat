@@ -42,6 +42,7 @@ type Event struct {
 	Timestamp time.Time     // Timestamp when the event data was collected.
 	Error     error         // Error that occurred while collecting the event data.
 	Host      string        // Host from which the data was collected.
+	Service   string        // Service type
 	Took      time.Duration // Amount of time it took to collect the event data.
 }
 
@@ -65,6 +66,12 @@ func (e *Event) BeatEvent(module, metricSet string, modifiers ...EventModifier) 
 		b.Fields.Put(module, e.ModuleFields)
 		e.ModuleFields = nil
 	}
+
+	// If service is not set, falls back to the module name
+	if e.Service == "" {
+		e.Service = module
+	}
+	e.RootFields.Put("service.type", e.Service)
 
 	if len(e.MetricSetFields) > 0 {
 		switch e.Namespace {
@@ -110,34 +117,32 @@ func (e *Event) BeatEvent(module, metricSet string, modifiers ...EventModifier) 
 //       "rtt": 115
 //     }
 func AddMetricSetInfo(module, metricset string, event *Event) {
-	info := common.MapStr{
-		"name":   metricset,
-		"module": module,
-	}
-	if event.Host != "" {
-		info["host"] = event.Host
+
+	if event.Namespace == "" {
+		event.Namespace = fmt.Sprintf("%s.%s", module, metricset)
 	}
 
-	if event.Namespace != "" {
-		info["namespace"] = event.Namespace
-	}
-	info = common.MapStr{
-		"metricset": info,
+	e := common.MapStr{
 		"event": common.MapStr{
-			"dataset": fmt.Sprintf("%s.%s", module, metricset),
+			"dataset": event.Namespace,
+			"module":  module,
+		},
+		// TODO: This should only be sent if migration layer is enabled
+		"metricset": common.MapStr{
+			"name": metricset,
 		},
 	}
-
+	if event.Host != "" {
+		e.Put("service.address", event.Host)
+	}
 	if event.Took > 0 {
-		// rtt is deprecated and will be removed in 7.0. Replaced by event.duration.
-		info.Put("metricset.rtt", event.Took/time.Microsecond)
-		info.Put("event.duration", event.Took/time.Nanosecond)
+		e.Put("event.duration", event.Took/time.Nanosecond)
 	}
 
 	if event.RootFields == nil {
-		event.RootFields = info
+		event.RootFields = e
 	} else {
-		event.RootFields.DeepUpdate(info)
+		event.RootFields.DeepUpdate(e)
 	}
 }
 

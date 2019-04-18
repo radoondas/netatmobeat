@@ -52,10 +52,11 @@ func NewConfigAppender(cfg *common.Config) (autodiscover.Appender, error) {
 	config := config{}
 	err := cfg.Unpack(&config)
 	if err != nil {
-		return nil, fmt.Errorf("unable to unpack config appender due to error: %v", err)
+		return nil, fmt.Errorf("unable to unpack config appender due to error: %+v", err)
 	}
 
 	var cond conditions.Condition
+
 	if config.ConditionConfig != nil {
 		cond, err = conditions.NewCondition(config.ConditionConfig)
 		if err != nil {

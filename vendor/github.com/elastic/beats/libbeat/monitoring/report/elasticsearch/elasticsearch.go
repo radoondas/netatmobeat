@@ -37,6 +37,7 @@ import (
 	"github.com/elastic/beats/libbeat/outputs/outil"
 	"github.com/elastic/beats/libbeat/outputs/transport"
 	"github.com/elastic/beats/libbeat/publisher/pipeline"
+	"github.com/elastic/beats/libbeat/publisher/processing"
 	"github.com/elastic/beats/libbeat/publisher/queue"
 	"github.com/elastic/beats/libbeat/publisher/queue/memqueue"
 )
@@ -67,7 +68,7 @@ var errNoMonitoring = errors.New("xpack monitoring not available")
 // default monitoring api parameters
 var defaultParams = map[string]string{
 	"system_id":          "beats",
-	"system_api_version": "6",
+	"system_api_version": "7",
 }
 
 func init() {
@@ -108,7 +109,6 @@ func defaultConfig(settings report.Settings) config {
 func makeReporter(beat beat.Info, settings report.Settings, cfg *common.Config) (report.Reporter, error) {
 	log := logp.L().Named(selector)
 	config := defaultConfig(settings)
-
 	if err := cfg.Unpack(&config); err != nil {
 		return nil, err
 	}
@@ -170,10 +170,17 @@ func makeReporter(beat beat.Info, settings report.Settings, cfg *common.Config) 
 	outClient := outputs.NewFailoverClient(clients)
 	outClient = outputs.WithBackoff(outClient, config.Backoff.Init, config.Backoff.Max)
 
+	processing, err := processing.MakeDefaultSupport(true)(beat, log, common.NewConfig())
+	if err != nil {
+		return nil, err
+	}
+
 	pipeline, err := pipeline.New(
 		beat,
-		pipeline.Monitors{},
-		monitoring,
+		pipeline.Monitors{
+			Metrics: monitoring,
+			Logger:  log,
+		},
 		queueFactory,
 		outputs.Group{
 			Clients:   []outputs.Client{outClient},
@@ -183,6 +190,7 @@ func makeReporter(beat beat.Info, settings report.Settings, cfg *common.Config) 
 		pipeline.Settings{
 			WaitClose:     0,
 			WaitCloseMode: pipeline.NoWaitOnClose,
+			Processors:    processing,
 		})
 	if err != nil {
 		return nil, err
@@ -356,6 +364,6 @@ func makeMeta(beat beat.Info) common.MapStr {
 		"version": beat.Version,
 		"name":    beat.Name,
 		"host":    beat.Hostname,
-		"uuid":    beat.UUID,
+		"uuid":    beat.ID,
 	}
 }

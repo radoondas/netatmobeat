@@ -13,6 +13,8 @@ include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
 include::{libbeat-dir}/docs/shared-beats-attributes.asciidoc[]
 
+include::./pull-request-guidelines.asciidoc[]
+
 include::./contributing.asciidoc[]
 
 include::{libbeat-dir}/docs/communitybeats.asciidoc[]

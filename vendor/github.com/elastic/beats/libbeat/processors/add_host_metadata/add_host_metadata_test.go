@@ -41,16 +41,22 @@ func TestConfigDefault(t *testing.T) {
 	assert.NoError(t, err)
 
 	p, err := newHostMetadataProcessor(testConfig)
-	if runtime.GOOS != "windows" && runtime.GOOS != "darwin" && runtime.GOOS != "linux" {
+	switch runtime.GOOS {
+	case "windows", "darwin", "linux":
+		assert.NoError(t, err)
+	default:
 		assert.IsType(t, types.ErrNotImplemented, err)
 		return
 	}
-	assert.NoError(t, err)
 
 	newEvent, err := p.Run(event)
 	assert.NoError(t, err)
 
 	v, err := newEvent.GetValue("host.os.family")
+	assert.NoError(t, err)
+	assert.NotNil(t, v)
+
+	v, err = newEvent.GetValue("host.os.kernel")
 	assert.NoError(t, err)
 	assert.NotNil(t, v)
 
@@ -78,16 +84,22 @@ func TestConfigNetInfoEnabled(t *testing.T) {
 	assert.NoError(t, err)
 
 	p, err := newHostMetadataProcessor(testConfig)
-	if runtime.GOOS != "windows" && runtime.GOOS != "darwin" && runtime.GOOS != "linux" {
+	switch runtime.GOOS {
+	case "windows", "darwin", "linux":
+		assert.NoError(t, err)
+	default:
 		assert.IsType(t, types.ErrNotImplemented, err)
 		return
 	}
-	assert.NoError(t, err)
 
 	newEvent, err := p.Run(event)
 	assert.NoError(t, err)
 
 	v, err := newEvent.GetValue("host.os.family")
+	assert.NoError(t, err)
+	assert.NotNil(t, v)
+
+	v, err = newEvent.GetValue("host.os.kernel")
 	assert.NoError(t, err)
 	assert.NotNil(t, v)
 
@@ -102,6 +114,34 @@ func TestConfigNetInfoEnabled(t *testing.T) {
 	v, err = newEvent.GetValue("host.mac")
 	assert.NoError(t, err)
 	assert.NotNil(t, v)
+}
+
+func TestConfigName(t *testing.T) {
+	event := &beat.Event{
+		Fields:    common.MapStr{},
+		Timestamp: time.Now(),
+	}
+
+	config := map[string]interface{}{
+		"name": "my-host",
+	}
+
+	testConfig, err := common.NewConfigFrom(config)
+	assert.NoError(t, err)
+
+	p, err := newHostMetadataProcessor(testConfig)
+	require.NoError(t, err)
+
+	newEvent, err := p.Run(event)
+	assert.NoError(t, err)
+
+	for configKey, configValue := range config {
+		t.Run(fmt.Sprintf("Check of %s", configKey), func(t *testing.T) {
+			v, err := newEvent.GetValue(fmt.Sprintf("host.%s", configKey))
+			assert.NoError(t, err)
+			assert.Equal(t, configValue, v, "Could not find in %s", newEvent)
+		})
+	}
 }
 
 func TestConfigGeoEnabled(t *testing.T) {

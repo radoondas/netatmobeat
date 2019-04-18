@@ -64,8 +64,7 @@ func ExampleWrapper() {
 	go func() {
 		defer wg.Done()
 		for event := range output {
-			event.Fields.Put("metricset.rtt", 111)
-			event.Fields.Put("event.duration", 111000)
+			event.Fields.Put("event.duration", 111)
 
 			output, err := encodeEvent(event)
 			if err == nil {
@@ -87,13 +86,14 @@ func ExampleWrapper() {
 	// {
 	//   "@metadata": {
 	//     "beat": "noindex",
-	//     "type": "doc",
+	//     "type": "_doc",
 	//     "version": "1.2.3"
 	//   },
 	//   "@timestamp": "2016-05-10T23:27:58.485Z",
 	//   "event": {
 	//     "dataset": "fake.eventfetcher",
-	//     "duration": 111000
+	//     "duration": 111,
+	//     "module": "fake"
 	//   },
 	//   "fake": {
 	//     "eventfetcher": {
@@ -101,9 +101,10 @@ func ExampleWrapper() {
 	//     }
 	//   },
 	//   "metricset": {
-	//     "module": "fake",
-	//     "name": "eventfetcher",
-	//     "rtt": 111
+	//     "name": "eventfetcher"
+	//   },
+	//   "service": {
+	//     "type": "fake"
 	//   }
 	// }
 }
@@ -152,7 +153,7 @@ func ExampleRunner() {
 }
 
 func encodeEvent(event beat.Event) (string, error) {
-	output, err := json.New(false, true, "1.2.3").Encode("noindex", &event)
+	output, err := json.New("1.2.3", json.Config{}).Encode("noindex", &event)
 	if err != nil {
 		return "", nil
 	}

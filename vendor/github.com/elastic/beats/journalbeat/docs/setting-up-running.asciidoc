@@ -17,6 +17,7 @@ This section includes additional information on how to set up and run
 * <<directory-layout>>
 * <<keystore>>
 * <<command-line-options>>
+* <<running-with-systemd>>
 * <<shutdown>>
 * <<running-on-docker>>
 
@@ -29,5 +30,7 @@ include::{libbeat-dir}/docs/keystore.asciidoc[]
 include::{libbeat-dir}/docs/command-reference.asciidoc[]
 
 include::./running-on-docker.asciidoc[]
+
+include::{libbeat-dir}/docs/shared-systemd.asciidoc[]
 
 include::{libbeat-dir}/docs/shared-shutdown.asciidoc[]

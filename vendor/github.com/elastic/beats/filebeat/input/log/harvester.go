@@ -45,18 +45,17 @@ import (
 	file_helper "github.com/elastic/beats/libbeat/common/file"
 	"github.com/elastic/beats/libbeat/logp"
 	"github.com/elastic/beats/libbeat/monitoring"
-	"github.com/elastic/beats/libbeat/reader/debug"
 
 	"github.com/elastic/beats/filebeat/channel"
 	"github.com/elastic/beats/filebeat/harvester"
 	"github.com/elastic/beats/filebeat/input/file"
-	"github.com/elastic/beats/filebeat/reader"
-	"github.com/elastic/beats/filebeat/reader/docker_json"
-	"github.com/elastic/beats/filebeat/reader/json"
-	"github.com/elastic/beats/filebeat/reader/multiline"
-	"github.com/elastic/beats/filebeat/reader/readfile"
-	"github.com/elastic/beats/filebeat/reader/readfile/encoding"
 	"github.com/elastic/beats/filebeat/util"
+	"github.com/elastic/beats/libbeat/reader"
+	"github.com/elastic/beats/libbeat/reader/debug"
+	"github.com/elastic/beats/libbeat/reader/multiline"
+	"github.com/elastic/beats/libbeat/reader/readfile"
+	"github.com/elastic/beats/libbeat/reader/readfile/encoding"
+	"github.com/elastic/beats/libbeat/reader/readjson"
 )
 
 var (
@@ -308,9 +307,8 @@ func (h *Harvester) Run() error {
 		// Check if data should be added to event. Only export non empty events.
 		if !message.IsEmpty() && h.shouldExportLine(text) {
 			fields := common.MapStr{
-				"source": state.Source,
-				"offset": startingOffset, // Offset here is the offset before the starting char.
 				"log": common.MapStr{
+					"offset": startingOffset, // Offset here is the offset before the starting char.
 					"file": common.MapStr{
 						"path": state.Source,
 					},
@@ -329,7 +327,7 @@ func (h *Harvester) Run() error {
 			}
 
 			if h.config.JSON != nil && len(jsonFields) > 0 {
-				ts := json.MergeJSONFields(fields, jsonFields, &text, *h.config.JSON)
+				ts := readjson.MergeJSONFields(fields, jsonFields, &text, *h.config.JSON)
 				if !ts.IsZero() {
 					// there was a `@timestamp` key in the event, so overwrite
 					// the resulting timestamp
@@ -573,11 +571,11 @@ func (h *Harvester) newLogFileReader() (reader.Reader, error) {
 
 	if h.config.DockerJSON != nil {
 		// Docker json-file format, add custom parsing to the pipeline
-		r = docker_json.New(r, h.config.DockerJSON.Stream, h.config.DockerJSON.Partial, h.config.DockerJSON.ForceCRI, h.config.DockerJSON.CRIFlags)
+		r = readjson.New(r, h.config.DockerJSON.Stream, h.config.DockerJSON.Partial, h.config.DockerJSON.ForceCRI, h.config.DockerJSON.CRIFlags)
 	}
 
 	if h.config.JSON != nil {
-		r = json.New(r, h.config.JSON)
+		r = readjson.NewJSONReader(r, h.config.JSON)
 	}
 
 	r = readfile.NewStripNewline(r)

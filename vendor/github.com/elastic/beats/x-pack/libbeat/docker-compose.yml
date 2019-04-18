@@ -37,8 +37,7 @@ services:
       - "http.host=0.0.0.0"
       - "xpack.security.enabled=true"
       - "xpack.license.self_generated.type=trial"
-      - "xpack.security.authc.realms.file1.type=file"
-      - "xpack.security.authc.realms.file1.order=0"
+      - "xpack.security.authc.realms.file.file1.order=0"
     command: bash -c "bin/elasticsearch-users useradd myelastic -r superuser -p changeme | /usr/local/bin/docker-entrypoint.sh eswrapper"
 
   kibana:

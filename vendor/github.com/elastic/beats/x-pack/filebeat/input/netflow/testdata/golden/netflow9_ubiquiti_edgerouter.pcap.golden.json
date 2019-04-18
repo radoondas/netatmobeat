@@ -64,7 +64,7 @@
         "observer": {
           "ip": "10.100.4.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.100.5.2",
           "locality": "private",
           "port": 43376
@@ -135,7 +135,7 @@
         "observer": {
           "ip": "10.100.4.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.100.6.93",
           "locality": "private",
           "port": 54520
@@ -206,7 +206,7 @@
         "observer": {
           "ip": "10.100.4.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.100.4.1",
           "locality": "private",
           "port": 53
@@ -277,7 +277,7 @@
         "observer": {
           "ip": "10.100.4.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.100.6.93",
           "locality": "private",
           "port": 54497
@@ -348,7 +348,7 @@
         "observer": {
           "ip": "10.100.4.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.100.6.80",
           "locality": "private",
           "port": 50030
@@ -419,7 +419,7 @@
         "observer": {
           "ip": "10.100.4.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.100.6.93",
           "locality": "private",
           "port": 54517
@@ -490,7 +490,7 @@
         "observer": {
           "ip": "10.100.4.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.100.6.93",
           "locality": "private",
           "port": 54518
@@ -561,7 +561,7 @@
         "observer": {
           "ip": "10.100.4.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.100.6.93",
           "locality": "private",
           "port": 54519
@@ -632,7 +632,7 @@
         "observer": {
           "ip": "10.100.4.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "10.100.6.93",
           "locality": "private",
           "port": 54521
@@ -703,7 +703,7 @@
         "observer": {
           "ip": "10.100.4.1"
         },
-        "source_ecs": {
+        "source": {
           "ip": "192.168.1.4",
           "locality": "private",
           "port": 57253
