@@ -4,7 +4,7 @@
 :pull: https://github.com/elastic/beats/pull/
 
 === Beats version HEAD
-https://github.com/elastic/beats/compare/v7.0.0-rc1...master[Check the HEAD diff]
+https://github.com/elastic/beats/compare/v7.0.0...7.0[Check the HEAD diff]
 
 ==== Breaking changes
 
@@ -20,6 +20,8 @@ https://github.com/elastic/beats/compare/v7.0.0-rc1...master[Check the HEAD diff
 
 *Metricbeat*
 
+- Change cloud.provider from ec2 to aws and from gce to gcp in add_cloud_metadata to align with ECS. {issue}10775[10775] {pull}11687[11687]
+
 *Packetbeat*
 
 *Winlogbeat*
@@ -30,24 +32,22 @@ https://github.com/elastic/beats/compare/v7.0.0-rc1...master[Check the HEAD diff
 
 *Affecting all Beats*
 
-- Relax validation of the X-Pack license UID value. {issue}11640[11640]
-- Fix a parsing error with the X-Pack license check on 32-bit system. {issue}11650[11650]
-- Fix ILM policy always being overwritten. {pull}11671[11671]
-- Fix template always being overwritten. {pull}11671[11671]
+- Fix formatting for `event.duration`, "human readable" was not working well for this. {pull}11675[11675]
+- Fix initialization of the TCP input logger. {pull}11605[11605]
 
 *Auditbeat*
 
-- Package dataset: Nullify Librpm's rpmsqEnable. {pull}11628[11628]
-
 *Filebeat*
 
-- Fix `add_docker_metadata` source matching, using `log.file.path` field now. {pull}11577[11577]
-
 *Heartbeat*
+
+- Fix NPE on some monitor configuration errors. {pull}11910[11910]
 
 *Journalbeat*
 
 *Metricbeat*
+
+- Change `add_cloud_metadata` processor to not overwrite `cloud` field when it already exist in the event. {pull}11612[11612] {issue}11305[11305]
 
 *Packetbeat*
 
@@ -60,6 +60,8 @@ https://github.com/elastic/beats/compare/v7.0.0-rc1...master[Check the HEAD diff
 *Affecting all Beats*
 
 *Auditbeat*
+
+- Add support to the system package dataset for the SUSE OS family. {pull}11634[11634]
 
 *Filebeat*
 
@@ -84,6 +86,8 @@ https://github.com/elastic/beats/compare/v7.0.0-rc1...master[Check the HEAD diff
 *Journalbeat*
 
 *Metricbeat*
+
+- Prevent the docker/memory metricset from processing invalid events before container start {pull}11676[11676]
 
 *Packetbeat*
 
