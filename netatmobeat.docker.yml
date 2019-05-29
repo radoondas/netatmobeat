@@ -16,6 +16,7 @@ netatmobeat:
         lat_ne: 49.650266
         lon_ne: 22.780239
         lat_sw: 47.780377
+        lon_sw: 16.759731
       - region:
         enabled: true
         name: "Spain"
@@ -52,7 +53,7 @@ netatmobeat:
   weather_stations:
     enabled: false
     period: 5m
-    ids: [ "70:ee:50:28:90:aa" ]
+    ids: [ "st:at:io:ni:dd" ]
 processors:
 - add_cloud_metadata: ~
 
