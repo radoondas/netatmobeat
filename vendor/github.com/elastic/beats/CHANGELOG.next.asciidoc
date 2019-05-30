@@ -4,7 +4,7 @@
 :pull: https://github.com/elastic/beats/pull/
 
 === Beats version HEAD
-https://github.com/elastic/beats/compare/v6.7.0...6.x[Check the HEAD diff]
+https://github.com/elastic/beats/compare/v6.7.2...6.8[Check the HEAD diff]
 
 ==== Breaking changes
 
@@ -35,9 +35,12 @@ https://github.com/elastic/beats/compare/v6.7.0...6.x[Check the HEAD diff]
 
 *Auditbeat*
 
-- Package dataset: dlopen versioned librpm shared objects. {pull}11565[11565]
+- Package dataset: Log error when Homebrew is not installed. {pull}11667[11667]
 
 *Filebeat*
+
+- Fix goroutine leak happening when harvesters are dynamically stopped. {pull}11263[11263]
+- Fix initialization of the TCP input logger. {pull}11605[11605]
 
 *Heartbeat*
 
@@ -56,6 +59,8 @@ https://github.com/elastic/beats/compare/v6.7.0...6.x[Check the HEAD diff]
 *Affecting all Beats*
 
 *Auditbeat*
+
+- Add support to the system package dataset for the SUSE OS family. {pull}11634[11634]
 
 *Filebeat*
 
