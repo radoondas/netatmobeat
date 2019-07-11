@@ -6,7 +6,7 @@ services:
 language: go
 
 go:
-  - 1.10.8
+  - 1.11.5
 
 os:
   - linux
@@ -23,15 +23,18 @@ env:
 
 addons:
   apt:
+    update: true
     packages:
       - python-virtualenv
 
 before_install:
+  - python --version
   # Redo the travis setup but with the elastic/libbeat path. This is needed so the package path is correct
   - mkdir -p $HOME/gopath/src/github.com/radoondas/netatmobeat/
   - rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/github.com/radoondas/netatmobeat/
   - export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/radoondas/netatmobeat/
   - cd $HOME/gopath/src/github.com/radoondas/netatmobeat/
+  - if [ $TRAVIS_OS_NAME = osx ]; then pip install virtualenv; fi
 
 install:
   - true
