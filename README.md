@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/radoondas/netatmobeat.svg?branch=7.0)](https://travis-ci.org/radoondas/netatmobeat)
+
 # Netatmobeat
 
 Welcome to Netatmobeat. 
