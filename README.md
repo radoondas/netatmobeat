@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/radoondas/netatmobeat.svg?branch=6.8)](https://travis-ci.org/radoondas/netatmobeat)
+
 # Netatmobeat
 
 Welcome to Netatmobeat. 
@@ -41,6 +43,7 @@ Public weather configuration. Define regions you want to gather data from. Regio
         lat_ne: 49.650266
         lon_ne: 22.780239
         lat_sw: 47.780377
+        lon_sw: 16.759731
       - region:
         enabled: true
         name: "Spain"
