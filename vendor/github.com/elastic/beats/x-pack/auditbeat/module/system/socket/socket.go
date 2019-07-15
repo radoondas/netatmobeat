@@ -328,7 +328,9 @@ func (ms *MetricSet) socketEvent(socket *Socket, eventType string, action eventA
 	event.RootFields.Put("event.action", action.String())
 	event.RootFields.Put("message", socketMessage(socket, action))
 
-	event.RootFields.Put("socket.entity_id", socket.entityID(ms.HostID()))
+	if ms.HostID() != "" {
+		event.RootFields.Put("socket.entity_id", socket.entityID(ms.HostID()))
+	}
 
 	return event
 }
@@ -379,7 +381,7 @@ func (ms *MetricSet) enrichSocket(socket *Socket) error {
 
 	socket.Username = userAccount.Username
 
-	socket.Direction = ms.listeners.Direction(uint8(syscall.IPPROTO_TCP),
+	socket.Direction = ms.listeners.Direction(uint8(socket.Family), uint8(syscall.IPPROTO_TCP),
 		socket.LocalIP, socket.LocalPort, socket.RemoteIP, socket.RemotePort)
 
 	if ms.ptable != nil {
