@@ -4,7 +4,7 @@
 :pull: https://github.com/elastic/beats/pull/
 
 === Beats version HEAD
-https://github.com/elastic/beats/compare/v6.7.2...6.8[Check the HEAD diff]
+https://github.com/elastic/beats/compare/v6.8.0...6.8.1[Check the HEAD diff]
 
 ==== Breaking changes
 
@@ -35,18 +35,17 @@ https://github.com/elastic/beats/compare/v6.7.2...6.8[Check the HEAD diff]
 
 *Auditbeat*
 
-- Package dataset: Log error when Homebrew is not installed. {pull}11667[11667]
-
 *Filebeat*
 
-- Fix goroutine leak happening when harvesters are dynamically stopped. {pull}11263[11263]
-- Fix initialization of the TCP input logger. {pull}11605[11605]
+- When TLS is configured for the TCP input and a `certificate_authorities` is configured we now default to `required` for the `client_authentication`. {pull}12584[12584]
 
 *Heartbeat*
 
 *Journalbeat*
 
 *Metricbeat*
+
+- When TLS is configured for the http metricset and a `certificate_authorities` is configured we now default to `required` for the `client_authentication`. {pull}12584[12584]
 
 *Packetbeat*
 
@@ -59,8 +58,6 @@ https://github.com/elastic/beats/compare/v6.7.2...6.8[Check the HEAD diff]
 *Affecting all Beats*
 
 *Auditbeat*
-
-- Add support to the system package dataset for the SUSE OS family. {pull}11634[11634]
 
 *Filebeat*
 
