@@ -2181,6 +2181,10 @@
       type: alias
       path: agent.hostname
       migration: true
+
+    - name: timeseries.instance
+      type: keyword
+      description: Time series instance id
 - key: cloud
   title: Cloud provider metadata
   description: >
@@ -2280,6 +2284,12 @@
           example: "18D109"
           description: >
             OS build information.
+
+        - name: os.codename
+          type: keyword
+          example: "stretch"
+          description: >
+            OS codename, if any.
 - key: kubernetes
   title: Kubernetes
   description: >
@@ -2320,6 +2330,21 @@
           description: >
             Kubernetes annotations map
 
+        - name: replicaset.name
+          type: keyword
+          description: >
+            Kubernetes replicaset name
+
+        - name: deployment.name
+          type: keyword
+          description: >
+            Kubernetes deployment name
+
+        - name: statefulset.name
+          type: keyword
+          description: >
+            Kubernetes statefulset name
+
         - name: container.name
           type: keyword
           description: >
@@ -2341,6 +2366,39 @@
           type: alias
           path: process.executable
           migration: true
+- key: jolokia-autodiscover
+  title: Jolokia Discovery autodiscover provider
+  description: >
+    Metadata from Jolokia Discovery added by the jolokia provider.
+  fields:
+    - name: jolokia.agent.version
+      type: keyword
+      description: >
+        Version number of jolokia agent.
+    - name: jolokia.agent.id
+      type: keyword
+      description: >
+        Each agent has a unique id which can be either provided during startup of the agent in form of a configuration parameter or being autodetected. If autodected, the id has several parts: The IP, the process id, hashcode of the agent and its type.
+    - name: jolokia.server.product
+      type: keyword
+      description: >
+        The container product if detected.
+    - name: jolokia.server.version
+      type: keyword
+      description: >
+        The container's version (if detected).
+    - name: jolokia.server.vendor
+      type: keyword
+      description: >
+        The vendor of the container the agent is running in.
+    - name: jolokia.url
+      type: keyword
+      description: >
+        The URL how this agent can be contacted.
+    - name: jolokia.secured
+      type: boolean
+      description: >
+        Whether the agent was configured for authentication or not.
 - key: netatmo
   title: Netatmobeat
   description:

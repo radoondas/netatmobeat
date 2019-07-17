@@ -285,4 +285,4 @@ parse the data into the fields expected by the dashboards.
 Here is an example of the Filebeat system dashboard:
 
 [role="screenshot"]
-image:./images/kibana-system.png[]
+image::./images/kibana-system.png[]

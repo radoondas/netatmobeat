@@ -26,6 +26,9 @@ import (
 
 	cmd "github.com/elastic/beats/libbeat/cmd"
 	"github.com/elastic/beats/libbeat/cmd/instance"
+
+	// Import the script processor.
+	_ "github.com/elastic/beats/libbeat/processors/script"
 )
 
 // Name of this beat
@@ -43,4 +46,5 @@ func init() {
 	RootCmd.TestCmd.Flags().AddGoFlag(flag.CommandLine.Lookup("modules"))
 	RootCmd.SetupCmd.Flags().AddGoFlag(flag.CommandLine.Lookup("modules"))
 	RootCmd.AddCommand(cmd.GenModulesCmd(Name, "", buildModulesManager))
+	RootCmd.AddCommand(genGenerateCmd())
 }

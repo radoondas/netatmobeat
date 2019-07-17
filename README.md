@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/radoondas/netatmobeat.svg?branch=master)](https://travis-ci.org/radoondas/netatmobeat)
+[![Build Status](https://travis-ci.org/radoondas/netatmobeat.svg?branch=7.2)](https://travis-ci.org/radoondas/netatmobeat)
 
 # Netatmobeat
 

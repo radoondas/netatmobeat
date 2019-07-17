@@ -3,8 +3,8 @@
 :issue: https://github.com/elastic/beats/issues/
 :pull: https://github.com/elastic/beats/pull/
 
-=== Beats version HEAD
-https://github.com/elastic/beats/compare/v7.0.0...7.1[Check the HEAD diff]
+=== Beats version 7.2.x
+https://github.com/elastic/beats/compare/v7.2.0...7.2[Check the HEAD diff]
 
 ==== Breaking changes
 
@@ -20,6 +20,8 @@ https://github.com/elastic/beats/compare/v7.0.0...7.1[Check the HEAD diff]
 
 *Metricbeat*
 
+- kubernetes.container.cpu.limit.cores and kubernetes.container.cpu.requests.cores are now floats. {issue}11975[11975]
+
 *Packetbeat*
 
 *Winlogbeat*
@@ -30,20 +32,15 @@ https://github.com/elastic/beats/compare/v7.0.0...7.1[Check the HEAD diff]
 
 *Affecting all Beats*
 
-- Fixed a memory leak when using the add_process_metadata processor under Windows. {pull}12100[12100]
+- Fix a race condition with the Kafka pipeline client, it is possible that `Close()` get called before `Connect()` . {issue}11945[11945]
 
 *Auditbeat*
 
-- Package dataset: Log error when Homebrew is not installed. {pull}11667[11667]
-- Process dataset: Fixed a memory leak under Windows. {pull}12100[12100]
-- Login dataset: Fix re-read of utmp files. {pull}12028[12028]
-- Package dataset: Fixed a crash inside librpm after Auditbeat has been running for a while. {issue}12147[12147] {pull}12168[12168]
+- Host dataset: Fix reboot detection logic. {pull}12591[12591]
 
 *Filebeat*
 
-- Fix goroutine leak caused on initialization failures of log input. {pull}12125[12125]
-- Fix memory leak in Filebeat pipeline acker. {pull}12063[12063]
-- Fix goroutine leak on non-explicit finalization of log input. {pull}12164[12164]
+- When TLS is configured for the TCP input and a `certificate_authorities` is configured we now default to `required` for the `client_authentication`. {pull}12584[12584]
 
 *Heartbeat*
 
@@ -51,12 +48,9 @@ https://github.com/elastic/beats/compare/v7.0.0...7.1[Check the HEAD diff]
 
 *Metricbeat*
 
-- Update documentation with cloudwatch:ListMetrics permission. {pull}11987[11987]
-- Change some field type from scaled_float to long in aws module. {pull}11982[11982]
+- When TLS is configured for the http metricset and a `certificate_authorities` is configured we now default to `required` for the `client_authentication`. {pull}12584[12584]
 
 *Packetbeat*
-
-- Fixed a memory leak when using process monitoring under Windows. {pull}12100[12100]
 
 *Winlogbeat*
 
@@ -70,6 +64,8 @@ https://github.com/elastic/beats/compare/v7.0.0...7.1[Check the HEAD diff]
 
 *Filebeat*
 
+- Add ISO8601 date parsing support for system module. {pull}12568[12568] {pull}12579[12579]
+
 *Heartbeat*
 
 *Journalbeat*
@@ -79,6 +75,8 @@ https://github.com/elastic/beats/compare/v7.0.0...7.1[Check the HEAD diff]
 *Packetbeat*
 
 *Functionbeat*
+
+*Winlogbeat*
 
 ==== Deprecated
 
@@ -100,21 +98,4 @@ https://github.com/elastic/beats/compare/v7.0.0...7.1[Check the HEAD diff]
 
 ==== Known Issue
 
-*Affecting all Beats*
-
-*Filebeat*
-
-*Heartbeat*
-
 *Journalbeat*
-
-*Metricbeat*
-
-*Packetbeat*
-
-*Winlogbeat*
-
-*Functionbeat*
-
-*Journalbeat*
-
