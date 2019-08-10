@@ -10,6 +10,8 @@ GOBUILD_FLAGS=-i -ldflags "-X $(BEAT_PATH)/vendor/github.com/elastic/beats/libbe
 MAGE_IMPORT_PATH=${BEAT_PATH}/vendor/github.com/magefile/mage
 NO_COLLECT=true
 CHECK_HEADERS_DISABLED=1
+BEAT_VENDOR=radoondas
+BEAT_LICENSE=ASL 2.0
 
 # Path to the libbeat Makefile
 -include $(LIBBEAT_MAKEFILE)

@@ -9,6 +9,7 @@ This file is generated! See scripts/docs_collector.py
   * <<filebeat-module-coredns>>
   * <<filebeat-module-elasticsearch>>
   * <<filebeat-module-envoyproxy>>
+  * <<filebeat-module-googlecloud>>
   * <<filebeat-module-haproxy>>
   * <<filebeat-module-icinga>>
   * <<filebeat-module-iis>>
@@ -17,6 +18,7 @@ This file is generated! See scripts/docs_collector.py
   * <<filebeat-module-kibana>>
   * <<filebeat-module-logstash>>
   * <<filebeat-module-mongodb>>
+  * <<filebeat-module-mssql>>
   * <<filebeat-module-mysql>>
   * <<filebeat-module-nats>>
   * <<filebeat-module-netflow>>
@@ -42,6 +44,7 @@ include::modules/cisco.asciidoc[]
 include::modules/coredns.asciidoc[]
 include::modules/elasticsearch.asciidoc[]
 include::modules/envoyproxy.asciidoc[]
+include::modules/googlecloud.asciidoc[]
 include::modules/haproxy.asciidoc[]
 include::modules/icinga.asciidoc[]
 include::modules/iis.asciidoc[]
@@ -50,6 +53,7 @@ include::modules/kafka.asciidoc[]
 include::modules/kibana.asciidoc[]
 include::modules/logstash.asciidoc[]
 include::modules/mongodb.asciidoc[]
+include::modules/mssql.asciidoc[]
 include::modules/mysql.asciidoc[]
 include::modules/nats.asciidoc[]
 include::modules/netflow.asciidoc[]
