@@ -14,7 +14,7 @@ grouped in the following categories:
 
 * <<exported-fields-apache>>
 * <<exported-fields-auditd>>
-* <<exported-fields-beat>>
+* <<exported-fields-beat-common>>
 * <<exported-fields-cisco>>
 * <<exported-fields-cloud>>
 * <<exported-fields-coredns>>
@@ -22,6 +22,7 @@ grouped in the following categories:
 * <<exported-fields-ecs>>
 * <<exported-fields-elasticsearch>>
 * <<exported-fields-envoyproxy>>
+* <<exported-fields-googlecloud>>
 * <<exported-fields-haproxy>>
 * <<exported-fields-host-processor>>
 * <<exported-fields-icinga>>
@@ -34,6 +35,7 @@ grouped in the following categories:
 * <<exported-fields-log>>
 * <<exported-fields-logstash>>
 * <<exported-fields-mongodb>>
+* <<exported-fields-mssql>>
 * <<exported-fields-mysql>>
 * <<exported-fields-nats>>
 * <<exported-fields-netflow>>
@@ -983,7 +985,7 @@ alias to: destination.address
 
 --
 
-[[exported-fields-beat]]
+[[exported-fields-beat-common]]
 == Beat fields
 
 Contains common beat fields available in all event types.
@@ -1245,6 +1247,35 @@ type: short
 
 --
 
+[float]
+=== ios
+
+Fields for Cisco IOS logs.
+
+
+
+*`cisco.ios.access_list`*::
++
+--
+Name of the IP access list.
+
+
+type: keyword
+
+--
+
+*`cisco.ios.facility`*::
++
+--
+The facility to which the message refers (for example, SNMP, SYS, and so forth). A facility can be a hardware device, a protocol, or a module of the system software. It denotes the source or the cause of the system message.
+
+
+type: keyword
+
+example: SEC
+
+--
+
 [[exported-fields-cloud]]
 == Cloud provider metadata fields
 
@@ -1259,6 +1290,16 @@ Name of the project in Google Cloud.
 
 
 example: project-x
+
+--
+
+*`cloud.image.id`*::
++
+--
+Image ID for the cloud instance.
+
+
+example: ami-abcd1234
 
 --
 
@@ -1608,7 +1649,7 @@ example: 6.0.0-rc2
 === client
 
 A client is defined as the initiator of a network connection for events regarding sessions, connections, or bidirectional flow records.
-For TCP events, the client is the initiator of the TCP connection that sends the SYN packet(s). For other protocols, the client is generally the initiator or requestor in the network transaction. Some systems use the term "originator" to refer the client in TCP connections. The client fields describe details about the system acting as the client in the network event. Client fields are usually populated in conjunction with server fields.  Client fields are generally not populated for packet-level events.
+For TCP events, the client is the initiator of the TCP connection that sends the SYN packet(s). For other protocols, the client is generally the initiator or requestor in the network transaction. Some systems use the term "originator" to refer the client in TCP connections. The client fields describe details about the system acting as the client in the network event. Client fields are usually populated in conjunction with server fields. Client fields are generally not populated for packet-level events.
 Client / server representations can add semantic context to an exchange, which is helpful to visualize the data in certain situations. If your context falls in that category, you should still ensure that source and destination are filled appropriately.
 
 
@@ -1770,6 +1811,8 @@ example: 12
 Port of the client.
 
 type: long
+
+format: string
 
 --
 
@@ -2152,6 +2195,8 @@ Port of the destination.
 
 type: long
 
+format: string
+
 --
 
 *`destination.user.email`*::
@@ -2449,6 +2494,8 @@ Severity describes the original severity of the event. What the different severi
 type: long
 
 example: 7
+
+format: string
 
 --
 
@@ -3153,6 +3200,8 @@ type: long
 
 example: 404
 
+format: string
+
 --
 
 *`http.version`*::
@@ -3718,14 +3767,22 @@ Process id.
 
 type: long
 
+example: 4242
+
+format: string
+
 --
 
 *`process.ppid`*::
 +
 --
-Process parent id.
+Parent process' pid.
 
 type: long
+
+example: 4241
+
+format: string
 
 --
 
@@ -3748,6 +3805,8 @@ Thread ID.
 type: long
 
 example: 4242
+
+format: string
 
 --
 
@@ -3955,6 +4014,8 @@ example: 12
 Port of the server.
 
 type: long
+
+format: string
 
 --
 
@@ -4272,6 +4333,8 @@ Port of the source.
 
 type: long
 
+format: string
+
 --
 
 *`source.user.email`*::
@@ -4420,6 +4483,8 @@ Port of the request, such as 443.
 type: long
 
 example: 443
+
+format: string
 
 --
 
@@ -4901,6 +4966,13 @@ alias to: url.original
 type: alias
 
 alias to: user.name
+
+--
+
+*`elasticsearch.audit.message`*::
++
+--
+type: text
 
 --
 
@@ -5439,6 +5511,195 @@ type: keyword
 +
 --
 Envoy proxy type, tcp or http
+
+
+type: keyword
+
+--
+
+[[exported-fields-googlecloud]]
+== Google Cloud fields
+
+Module for handling logs from Google Cloud.
+
+
+
+[float]
+=== googlecloud
+
+Fields from Google Cloud logs.
+
+
+
+[float]
+=== vpcflow
+
+Fields for Google Cloud VPC flow logs.
+
+
+
+*`googlecloud.vpcflow.reporter`*::
++
+--
+The side which reported the flow. Can be either 'SRC' or 'DEST'.
+
+
+type: keyword
+
+--
+
+*`googlecloud.vpcflow.rtt.ms`*::
++
+--
+Latency as measured (for TCP flows only) during the time interval. This is the time elapsed between sending a SEQ and receiving a corresponding ACK and it contains the network RTT as well as the application related delay.
+
+
+type: long
+
+--
+
+[float]
+=== destination.instance
+
+If the destination of the connection was a VM located on the same VPC, this field is populated with VM instance details. In a Shared VPC configuration, project_id corresponds to the project that owns the instance, usually the service project.
+
+
+
+*`googlecloud.vpcflow.destination.instance.project_id`*::
++
+--
+ID of the project containing the VM.
+
+
+type: keyword
+
+--
+
+*`googlecloud.vpcflow.destination.instance.region`*::
++
+--
+Region of the VM.
+
+
+type: keyword
+
+--
+
+*`googlecloud.vpcflow.destination.instance.zone`*::
++
+--
+Zone of the VM.
+
+
+type: keyword
+
+--
+
+[float]
+=== destination.vpc
+
+If the destination of the connection was a VM located on the same VPC, this field is populated with VPC network details. In a Shared VPC configuration, project_id corresponds to that of the host project.
+
+
+
+*`googlecloud.vpcflow.destination.vpc.project_id`*::
++
+--
+ID of the project containing the VM.
+
+
+type: keyword
+
+--
+
+*`googlecloud.vpcflow.destination.vpc.vpc_name`*::
++
+--
+VPC on which the VM is operating.
+
+
+type: keyword
+
+--
+
+*`googlecloud.vpcflow.destination.vpc.subnetwork_name`*::
++
+--
+Subnetwork on which the VM is operating.
+
+
+type: keyword
+
+--
+
+[float]
+=== source.instance
+
+If the source of the connection was a VM located on the same VPC, this field is populated with VM instance details. In a Shared VPC configuration, project_id corresponds to the project that owns the instance, usually the service project.
+
+
+
+*`googlecloud.vpcflow.source.instance.project_id`*::
++
+--
+ID of the project containing the VM.
+
+
+type: keyword
+
+--
+
+*`googlecloud.vpcflow.source.instance.region`*::
++
+--
+Region of the VM.
+
+
+type: keyword
+
+--
+
+*`googlecloud.vpcflow.source.instance.zone`*::
++
+--
+Zone of the VM.
+
+
+type: keyword
+
+--
+
+[float]
+=== source.vpc
+
+If the source of the connection was a VM located on the same VPC, this field is populated with VPC network details. In a Shared VPC configuration, project_id corresponds to that of the host project.
+
+
+
+*`googlecloud.vpcflow.source.vpc.project_id`*::
++
+--
+ID of the project containing the VM.
+
+
+type: keyword
+
+--
+
+*`googlecloud.vpcflow.source.vpc.vpc_name`*::
++
+--
+VPC on which the VM is operating.
+
+
+type: keyword
+
+--
+
+*`googlecloud.vpcflow.source.vpc.subnetwork_name`*::
++
+--
+Subnetwork on which the VM is operating.
 
 
 type: keyword
@@ -7370,6 +7631,96 @@ alias to: event.created
 
 --
 
+*`docker.attrs`*::
++
+--
+docker.attrs contains labels and environment variables written by docker's JSON File logging driver. These fields are only available when they are configured in the logging driver options.
+
+
+type: object
+
+--
+
+*`event.code`*::
++
+--
+The code for the log message.
+
+
+type: keyword
+
+--
+
+*`icmp.code`*::
++
+--
+ICMP code.
+
+
+type: keyword
+
+--
+
+*`icmp.type`*::
++
+--
+ICMP type.
+
+
+type: keyword
+
+--
+
+*`igmp.type`*::
++
+--
+IGMP type.
+
+
+type: keyword
+
+--
+
+*`source.as.number`*::
++
+--
+Autonomous system number.
+
+
+type: long
+
+--
+
+*`destination.as.number`*::
++
+--
+Autonomous system number.
+
+
+type: long
+
+--
+
+*`source.as.organization.name`*::
++
+--
+Name of organization associated with the autonomous system.
+
+
+type: keyword
+
+--
+
+*`destination.as.organization.name`*::
++
+--
+Name of organization associated with the autonomous system.
+
+
+type: keyword
+
+--
+
 [[exported-fields-logstash]]
 == logstash fields
 
@@ -7631,6 +7982,33 @@ alias to: log.level
 type: alias
 
 alias to: message
+
+--
+
+[[exported-fields-mssql]]
+== mssql fields
+
+MS SQL Filebeat Module
+
+
+[float]
+=== mssql
+
+Fields from the MSSQL log files
+
+
+[float]
+=== log
+
+Common log fields
+
+
+*`mssql.log.origin`*::
++
+--
+Origin of the message, usually the server but it can also be a recovery process
+
+type: keyword
 
 --
 
@@ -11836,6 +12214,8 @@ type: long
 String representation of the collection time, as formatted by osquery.
 
 
+type: keyword
+
 --
 
 [[exported-fields-panw]]
@@ -12113,6 +12493,9 @@ Fields from the PostgreSQL log files.
 *`postgresql.log.timestamp`*::
 +
 --
+
+deprecated[7.3.0]
+
 The timestamp from the log line.
 
 
