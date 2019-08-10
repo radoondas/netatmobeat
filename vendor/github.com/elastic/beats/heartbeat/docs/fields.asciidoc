@@ -12,7 +12,7 @@ This file is generated! See _meta/fields.yml and scripts/generate_field_docs.py
 This document describes the fields that are exported by Heartbeat. They are
 grouped in the following categories:
 
-* <<exported-fields-beat>>
+* <<exported-fields-beat-common>>
 * <<exported-fields-cloud>>
 * <<exported-fields-common>>
 * <<exported-fields-docker-processor>>
@@ -30,7 +30,7 @@ grouped in the following categories:
 * <<exported-fields-tls>>
 
 --
-[[exported-fields-beat]]
+[[exported-fields-beat-common]]
 == Beat fields
 
 Contains common beat fields available in all event types.
@@ -123,6 +123,16 @@ Name of the project in Google Cloud.
 
 
 example: project-x
+
+--
+
+*`cloud.image.id`*::
++
+--
+Image ID for the cloud instance.
+
+
+example: ami-abcd1234
 
 --
 
@@ -478,7 +488,7 @@ example: 6.0.0-rc2
 === client
 
 A client is defined as the initiator of a network connection for events regarding sessions, connections, or bidirectional flow records.
-For TCP events, the client is the initiator of the TCP connection that sends the SYN packet(s). For other protocols, the client is generally the initiator or requestor in the network transaction. Some systems use the term "originator" to refer the client in TCP connections. The client fields describe details about the system acting as the client in the network event. Client fields are usually populated in conjunction with server fields.  Client fields are generally not populated for packet-level events.
+For TCP events, the client is the initiator of the TCP connection that sends the SYN packet(s). For other protocols, the client is generally the initiator or requestor in the network transaction. Some systems use the term "originator" to refer the client in TCP connections. The client fields describe details about the system acting as the client in the network event. Client fields are usually populated in conjunction with server fields. Client fields are generally not populated for packet-level events.
 Client / server representations can add semantic context to an exchange, which is helpful to visualize the data in certain situations. If your context falls in that category, you should still ensure that source and destination are filled appropriately.
 
 
@@ -640,6 +650,8 @@ example: 12
 Port of the client.
 
 type: long
+
+format: string
 
 --
 
@@ -1022,6 +1034,8 @@ Port of the destination.
 
 type: long
 
+format: string
+
 --
 
 *`destination.user.email`*::
@@ -1319,6 +1333,8 @@ Severity describes the original severity of the event. What the different severi
 type: long
 
 example: 7
+
+format: string
 
 --
 
@@ -2023,6 +2039,8 @@ type: long
 
 example: 404
 
+format: string
+
 --
 
 *`http.version`*::
@@ -2588,14 +2606,22 @@ Process id.
 
 type: long
 
+example: 4242
+
+format: string
+
 --
 
 *`process.ppid`*::
 +
 --
-Process parent id.
+Parent process' pid.
 
 type: long
+
+example: 4241
+
+format: string
 
 --
 
@@ -2618,6 +2644,8 @@ Thread ID.
 type: long
 
 example: 4242
+
+format: string
 
 --
 
@@ -2825,6 +2853,8 @@ example: 12
 Port of the server.
 
 type: long
+
+format: string
 
 --
 
@@ -3142,6 +3172,8 @@ Port of the source.
 
 type: long
 
+format: string
+
 --
 
 *`source.user.email`*::
@@ -3290,6 +3322,8 @@ Port of the request, such as 443.
 type: long
 
 example: 443
+
+format: string
 
 --
 
