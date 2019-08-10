@@ -5,14 +5,15 @@ Filebeat supports templates for inputs and modules.
 filebeat.autodiscover:
   providers:
     - type: docker
+      labels.dedot: true
       templates:
         - condition:
             contains:
               docker.container.image: redis
           config:
-            - type: container
-              paths:
-                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+            - type: docker
+              containers.ids:
+                - "${data.docker.container.id}"
               exclude_lines: ["^\\s+[\\-`('.|_]"]  # drop asciiart lines
 -------------------------------------------------------------------------------------
 
@@ -26,6 +27,7 @@ If you are using modules, you can override the default input and use the docker 
 filebeat.autodiscover:
   providers:
     - type: docker
+      labels.dedot: true
       templates:
         - condition:
             contains:
@@ -34,7 +36,7 @@ filebeat.autodiscover:
             - module: redis
               log:
                 input:
-                  type: container
-                  paths:
-                    - /var/lib/docker/containers/${data.docker.container.id}/*.log
+                  type: docker
+                  containers.ids:
+                    - "${data.docker.container.id}"
 -------------------------------------------------------------------------------------
