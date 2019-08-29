@@ -19,6 +19,7 @@ import (
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/logp"
 
+	"github.com/mitchellh/hashstructure"
 	"github.com/radoondas/netatmobeat/config"
 )
 
@@ -126,7 +127,13 @@ func (bt *Netatmobeat) GetRegionData(region config.Region) error {
 	for _, data := range transformedData {
 		//logp.NewLogger(selector).Debug("Data: ", data)
 
+		hash, _ := hashstructure.Hash(data, nil)
+		myid := strconv.FormatUint(hash, 10)
+
 		event := beat.Event{
+			Meta: common.MapStr{
+				"id": myid,
+			},
 			Timestamp: ts,
 			Fields: common.MapStr{
 				"type":    "netatmobeat",
@@ -143,7 +150,7 @@ func (bt *Netatmobeat) GetRegionData(region config.Region) error {
 
 func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, regionDescription string) []common.MapStr {
 
-	stations := []common.MapStr{}
+	var stations []common.MapStr
 
 	//index instead _
 	for _, station := range data.Stations {
