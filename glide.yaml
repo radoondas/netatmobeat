@@ -4,3 +4,5 @@ import:
   version: v7.3.0
 - package: github.com/magefile/mage
   version: v1.8.0
+- package: github.com/mitchellh/hashstructure
+  version: v1.0.0
