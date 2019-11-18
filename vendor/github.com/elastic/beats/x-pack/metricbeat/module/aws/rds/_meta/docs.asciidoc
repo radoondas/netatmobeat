@@ -15,3 +15,18 @@ rds:DescribeDBInstances
 === Dashboard
 
 The aws rds metricset comes with a predefined dashboard.
+
+image::./images/metricbeat-aws-rds-overview.png[]
+
+[float]
+=== Configuration example
+[source,yaml]
+----
+- module: aws
+  period: 60s
+  metricsets:
+    - rds
+  access_key_id: '<access_key_id>'
+  secret_access_key: '<secret_access_key>'
+  session_token: '<session_token>'
+----

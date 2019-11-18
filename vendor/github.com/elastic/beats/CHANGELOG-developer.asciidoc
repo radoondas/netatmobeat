@@ -12,8 +12,30 @@ other Beats should be migrated.
 
 Note: This changelog was only started after the 6.3 release.
 
+=== Beats version 7.4.1
+https://github.com/elastic/beats/compare/v7.4.0..v7.4.1[Check the HEAD diff
+
+=== Beats version 7.4.0
+https://github.com/elastic/beats/compare/v7.3.1..v7.4.0[Check the HEAD diff
+
+==== Breaking changes
+
+- For "metricbeat style" generated custom beats, the mage target `GoTestIntegration` has changed to `GoIntegTest` and `GoTestUnit` has changed to `GoUnitTest`. {pull}13341[13341]
+
+==== Added
+
+- Add ClientFactory to TCP input source to add SplitFunc/NetworkFuncs per client. {pull}8543[8543]
+- Introduce beat.OutputChooses publisher mode. {pull}12996[12996]
+- Ensure that beat.Processor, beat.ProcessorList, and processors.ProcessorList are compatible and can be composed more easily. {pull}12996[12996]
+- Add support to close beat.Client via beat.CloseRef (a subset of context.Context). {pull}13031[13031]
+- Add checks for types and formats used in fields definitions in `fields.yml` files. {pull}13188[13188]
+- Makefile included in generator copies files from beats repository using `git archive` instead of cp. {pull}13193[13193]
+
+=== Beats version 7.3.2
+https://github.com/elastic/beats/compare/v7.3.1..v7.3.2[Check the HEAD diff]
+
 === Beats version 7.3.1
-https://github.com/elastic/beats/compare/v7.3.0..v7.3.1[Check the HEAD diff
+https://github.com/elastic/beats/compare/v7.3.0..v7.3.1[Check the HEAD diff]
 
 === Beats version 7.3.0
 https://github.com/elastic/beats/compare/v7.2.1..v7.3.0[Check the HEAD diff]
@@ -47,6 +69,7 @@ https://github.com/elastic/beats/compare/v7.1.1..v7.2.0[Check the HEAD diff]
 - Only Load minimal template if no fields are provided. {pull}12103[12103]
 - Add new option `IgnoreAllErrors` to `libbeat.common.schema` for skipping fields that failed while converting. {pull}12089[12089]
 - Deprecate setup cmds for `template` and `ilm-policy`. Add new setup cmd for `index-management`. {pull}12132[12132]
+
 
 === Beats version 7.1.1
 https://github.com/elastic/beats/compare/v7.1.0..v7.1.1[Check the HEAD diff]
