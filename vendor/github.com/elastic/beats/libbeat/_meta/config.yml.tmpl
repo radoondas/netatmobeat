@@ -95,9 +95,9 @@ processors:
   - add_cloud_metadata: ~
 {{else}}
 processors:
-  - add_observer_metadata: 
+  - add_observer_metadata:
   # Optional, but recommended geo settings for the location {{ .BeatName | title }} is running in
-  #geo: 
+  #geo:
     # Token describing this location
     #name: us-east-1a
 
@@ -115,7 +115,7 @@ processors:
 # "publish", "service".
 #logging.selectors: ["*"]
 
-#============================== Xpack Monitoring ===============================
+#============================== X-Pack Monitoring ===============================
 # beatname can export internal metrics to a central Elasticsearch monitoring
 # cluster.  This requires xpack monitoring to be enabled in Elasticsearch.  The
 # reporting is disabled by default.

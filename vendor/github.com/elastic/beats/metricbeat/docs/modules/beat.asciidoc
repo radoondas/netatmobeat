@@ -1,5 +1,5 @@
 ////
-This file is generated! See scripts/docs_collector.py
+This file is generated! See scripts/mage/docs_collector.go
 ////
 
 [[metricbeat-module-beat]]
@@ -10,9 +10,9 @@ This is the Beat module.
 The default metricsets are `state` and `stats`.
 
 [float]
-=== Compability
+=== Compatibility
 
-The beat module is tested with metricbeat 7.2.0.
+The beat module is tested with metricbeat 7.3.0.
 
 
 [float]

@@ -125,12 +125,13 @@ func (bt *Netatmobeat) Run(b *beat.Beat) error {
 	// run only if station's data are enabled
 	if bt.config.WeatherStations.Enabled {
 		for _, stationID := range bt.config.WeatherStations.Ids {
+			stid := stationID
 			go func() {
 				ticker := time.NewTicker(bt.config.WeatherStations.Period)
 				defer ticker.Stop()
 
 				for {
-					err := bt.GetStationsData(stationID)
+					err := bt.GetStationsData(stid)
 					if err != nil {
 						//TODO: return?
 						logp.NewLogger(selector).Error(err)
