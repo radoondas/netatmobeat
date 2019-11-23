@@ -14,6 +14,7 @@ https://github.com/elastic/beats/compare/v6.8.0...6.8.1[Check the HEAD diff]
 
 *Filebeat*
 
+
 *Heartbeat*
 
 *Journalbeat*
@@ -35,15 +36,18 @@ https://github.com/elastic/beats/compare/v6.8.0...6.8.1[Check the HEAD diff]
 
 *Auditbeat*
 
-- Host dataset: Export Host fields to gob encoder. {pull}12940[12940]
-
 *Filebeat*
+
 
 *Heartbeat*
 
 *Journalbeat*
 
+- Use backoff when no new events are found. {pull}11861[11861]
+
 *Metricbeat*
+
+- Convert indexed ms-since-epoch timestamp fields in `elasticsearch/ml_job` metricset to ints from float64s. {issue}14220[14220] {pull}14222[14222]
 
 *Packetbeat*
 
@@ -64,6 +68,7 @@ https://github.com/elastic/beats/compare/v6.8.0...6.8.1[Check the HEAD diff]
 *Journalbeat*
 
 *Metricbeat*
+
 
 *Packetbeat*
 
