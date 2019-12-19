@@ -1,0 +1,6 @@
+# Module: misp
+# Docs: https://www.elastic.co/guide/en/beats/filebeat/7.5/filebeat-module-misp.html
+
+- module: misp
+  threat:
+    enabled: true
