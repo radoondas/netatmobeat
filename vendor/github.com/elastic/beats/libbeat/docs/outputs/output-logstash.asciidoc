@@ -49,7 +49,7 @@ endif::[]
 
 ifndef::win-only[]
  
-include::{libbeat-dir}/docs/step-test-config.asciidoc[]
+include::{libbeat-dir}/step-test-config.asciidoc[]
 
 endif::win-only[]
 
@@ -75,7 +75,7 @@ ifndef::apm-server[]
     ...
     "@metadata": { <1>
       "beat": "{beat_default_index_prefix}", <2>
-      "version": "{stack-version}" <3>
+      "version": "{version}" <3>
     }
 }
 ------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ ifdef::apm-server[]
     "@metadata": { <1>
       "beat": "{beat_default_index_prefix}", <2>
       "pipeline":"apm", <3>
-      "version": "{stack-version}" <4>
+      "version": "{version}" <4>
     }
 }
 ------------------------------------------------------------------------------
@@ -288,7 +288,7 @@ NOTE: The "ttl" option is not yet supported on an async Logstash client (one wit
 
 Configures number of batches to be sent asynchronously to logstash while waiting
 for ACK from logstash. Output only becomes blocking once number of `pipelining`
-batches have been written. Pipelining is disabled if a values of 0 is
+batches have been written. Pipelining is disabled if a value of 0 is
 configured. The default value is 2.
 
 ===== `proxy_url`
