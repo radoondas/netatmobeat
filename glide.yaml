@@ -1,6 +1,6 @@
 package: github.com/radoondas/netatmobeat
 import:
 - package: github.com/elastic/beats
-  version: v6.8.5
+  version: v6.8.6
 - package: github.com/magefile/mage
   version: 5e51f9ad1ed0886c5d06a8c46a09703cfc4d9034
