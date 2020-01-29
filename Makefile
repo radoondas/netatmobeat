@@ -12,6 +12,7 @@ NO_COLLECT=true
 CHECK_HEADERS_DISABLED=true
 BEAT_VENDOR=radoondas
 BEAT_LICENSE=ASL 2.0
+VIRTUALENV_PARAMS=-p /usr/bin/python2.7
 
 # Path to the libbeat Makefile
 -include $(LIBBEAT_MAKEFILE)
