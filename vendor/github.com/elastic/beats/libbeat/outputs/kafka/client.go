@@ -192,9 +192,6 @@ func (c *client) getEventMessage(data *publisher.Event) (*message, error) {
 			return nil, errNoTopicsSelected
 		}
 		msg.topic = topic
-		if logp.IsDebug(debugSelector) {
-			debugf("setting event.Meta[\"topic\"] = %v", topic)
-		}
 		if _, err := data.Cache.Put("topic", topic); err != nil {
 			return nil, fmt.Errorf("setting kafka topic in publisher event failed: %v", err)
 		}
@@ -254,13 +251,11 @@ func (r *msgRef) fail(msg *message, err error) {
 	switch err {
 	case sarama.ErrInvalidMessage:
 		logp.Err("Kafka (topic=%v): dropping invalid message", msg.topic)
-		r.client.observer.Dropped(1)
 
 	case sarama.ErrMessageSizeTooLarge, sarama.ErrInvalidMessageSize:
 		logp.Err("Kafka (topic=%v): dropping too large message of size %v.",
 			msg.topic,
 			len(msg.key)+len(msg.value))
-		r.client.observer.Dropped(1)
 
 	default:
 		r.failed = append(r.failed, msg.data)

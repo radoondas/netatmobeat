@@ -6,7 +6,7 @@ services:
 language: go
 
 go:
-  - 1.12.12
+  - 1.13.7
 
 os:
   - linux
@@ -20,6 +20,7 @@ env:
   global:
     # Cross-compile for amd64 only to speed up testing.
     - GOX_FLAGS="-arch amd64"
+    - MACOSX_DEPLOYMENT_TARGET=10.15
 
 addons:
   apt:
