@@ -19,6 +19,7 @@ package elasticsearch
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -68,6 +69,7 @@ type ClientSettings struct {
 	ProxyDisable       bool
 	TLS                *transport.TLSConfig
 	Username, Password string
+	APIKey             string
 	EscapeHTML         bool
 	Parameters         map[string]string
 	Headers            map[string]string
@@ -86,6 +88,7 @@ type Connection struct {
 	URL      string
 	Username string
 	Password string
+	APIKey   string
 	Headers  map[string]string
 
 	http              *http.Client
@@ -206,12 +209,14 @@ func NewClient(
 			URL:      s.URL,
 			Username: s.Username,
 			Password: s.Password,
+			APIKey:   base64.StdEncoding.EncodeToString([]byte(s.APIKey)),
 			Headers:  s.Headers,
 			http: &http.Client{
 				Transport: &http.Transport{
-					Dial:    dialer.Dial,
-					DialTLS: tlsDialer.Dial,
-					Proxy:   proxy,
+					Dial:            dialer.Dial,
+					DialTLS:         tlsDialer.Dial,
+					TLSClientConfig: s.TLS.ToConfig(),
+					Proxy:           proxy,
 				},
 				Timeout: s.Timeout,
 			},
@@ -278,6 +283,7 @@ func (client *Client) Clone() *Client {
 			TLS:              client.tlsConfig,
 			Username:         client.Username,
 			Password:         client.Password,
+			APIKey:           client.APIKey,
 			Parameters:       nil, // XXX: do not pass params?
 			Headers:          client.Headers,
 			Timeout:          client.http.Timeout,
@@ -431,7 +437,7 @@ func createEventBulkMeta(
 
 	var id string
 	if m := event.Meta; m != nil {
-		if tmp := m["id"]; tmp != nil {
+		if tmp := m["_id"]; tmp != nil {
 			if s, ok := tmp.(string); ok {
 				id = s
 			} else {
@@ -663,10 +669,8 @@ func (client *Client) Test(d testing.Driver) {
 		u, err := url.Parse(client.URL)
 		d.Fatal("parse url", err)
 
-		address := u.Hostname()
-		if u.Port() != "" {
-			address += ":" + u.Port()
-		}
+		address := u.Host
+
 		d.Run("connection", func(d testing.Driver) {
 			netDialer := transport.TestNetDialer(d, client.timeout)
 			_, err = netDialer.Dial("tcp", address)
@@ -807,8 +811,13 @@ func (conn *Connection) execRequest(
 
 func (conn *Connection) execHTTPRequest(req *http.Request) (int, []byte, error) {
 	req.Header.Add("Accept", "application/json")
+
 	if conn.Username != "" || conn.Password != "" {
 		req.SetBasicAuth(conn.Username, conn.Password)
+	}
+
+	if conn.APIKey != "" {
+		req.Header.Add("Authorization", "ApiKey "+conn.APIKey)
 	}
 
 	for name, value := range conn.Headers {

@@ -49,6 +49,7 @@ import (
 	"github.com/elastic/beats/libbeat/cfgfile"
 	"github.com/elastic/beats/libbeat/cloudid"
 	"github.com/elastic/beats/libbeat/common"
+	"github.com/elastic/beats/libbeat/common/cfgwarn"
 	"github.com/elastic/beats/libbeat/common/file"
 	"github.com/elastic/beats/libbeat/common/reload"
 	"github.com/elastic/beats/libbeat/common/seccomp"
@@ -371,6 +372,15 @@ func (b *Beat) launch(settings Settings, bt beat.Creator) error {
 		return err
 	}
 
+	// Try to acquire exclusive lock on data path to prevent another beat instance
+	// sharing same data path.
+	bl := newLocker(b)
+	err = bl.lock()
+	if err != nil {
+		return err
+	}
+	defer bl.unlock()
+
 	// Set Beat ID in registry vars, in case it was loaded from meta file
 	infoRegistry := monitoring.GetNamespace("info").GetRegistry()
 	monitoring.NewString(infoRegistry, "uuid").Set(b.Info.ID.String())
@@ -498,7 +508,7 @@ func (b *Beat) Setup(settings Settings, bt beat.Creator, setup SetupSettings) er
 				loadTemplate = idxmgmt.LoadModeOverwrite
 			}
 			if setup.IndexManagement || setup.ILMPolicy {
-				loadILM = idxmgmt.LoadModeOverwrite
+				loadILM = idxmgmt.LoadModeEnabled
 			}
 			m := b.IdxSupporter.Manager(idxmgmt.NewESClientHandler(esClient), idxmgmt.BeatsAssets(b.Fields))
 			if ok, warn := m.VerifySetup(loadTemplate, loadILM); !ok {
@@ -510,7 +520,7 @@ func (b *Beat) Setup(settings Settings, bt beat.Creator, setup SetupSettings) er
 			fmt.Println("Index setup finished.")
 		}
 
-		if setup.Dashboard {
+		if setup.Dashboard && settings.HasDashboards {
 			fmt.Println("Loading dashboards (Kibana must be running and reachable)")
 			err = b.loadDashboards(context.Background(), true)
 
@@ -527,6 +537,8 @@ func (b *Beat) Setup(settings Settings, bt beat.Creator, setup SetupSettings) er
 		}
 
 		if setup.MachineLearning && b.SetupMLCallback != nil {
+			cfgwarn.Deprecate("8.0.0", "Setting up ML using %v is going to be removed. Please use the ML app to setup jobs.", strings.Title(b.Info.Beat))
+			fmt.Println("Setting up ML using setup --machine-learning is going to be removed in 8.0.0. Please use the ML app instead.\nSee more: https://www.elastic.co/guide/en/elastic-stack-overview/current/xpack-ml.html")
 			err = b.SetupMLCallback(&b.Beat, b.Config.Kibana)
 			if err != nil {
 				return err
@@ -889,6 +901,11 @@ func (b *Beat) setupMonitoring(settings Settings) (report.Reporter, error) {
 	}
 
 	if monitoring.IsEnabled(monitoringCfg) {
+		err := monitoring.OverrideWithCloudSettings(monitoringCfg)
+		if err != nil {
+			return nil, err
+		}
+
 		settings := report.Settings{
 			DefaultUsername: settings.Monitoring.DefaultUsername,
 			Format:          reporterSettings.Format,

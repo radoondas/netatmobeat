@@ -141,6 +141,14 @@ If you don't use the +{beat_monitoring_user}+ user:
 |Cluster
 |`monitor`
 |Retrieve cluster details (e.g. version)
+
+|Index
+|`create_index` on `.monitoring-beats-*` indices
+|Create monitoring indices in {es}
+
+|Index
+|`create_doc` on `.monitoring-beats-*` indices
+|Write monitoring events into {es}
 |====
 
 . Assign the *monitoring role*, along with the following built-in roles, to
@@ -206,8 +214,9 @@ endif::serverless[]
 ==== Grant privileges and roles needed for publishing
 
 Users who publish events to {es} need to create and write to {beatname_uc}
-indices. To minimize the privileges required by the writer role, you can use the
-<<privileges-to-setup-beats,setup role>> to pre-load dependencies.
+indices. To minimize the privileges required by the writer role, use the
+<<privileges-to-setup-beats,setup role>> to pre-load dependencies. This section
+assumes that you've pre-loaded dependencies. 
 
 ifndef::no_ilm[]
 When using ILM, turn off the ILM setup check in the {beatname_uc} config file before
@@ -340,7 +349,7 @@ endif::apm-server[]
 ==== Learn more about users and roles
 
 Want to learn more about creating users and roles? See
-{ref}/elasticsearch-security.html[Securing the {stack}]. Also see:
+{ref}/secure-cluster.html[Secure a cluster]. Also see:
 
 * {ref}/security-privileges.html[Security privileges] for a description of
 available privileges

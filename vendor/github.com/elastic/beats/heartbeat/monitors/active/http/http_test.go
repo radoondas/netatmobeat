@@ -35,9 +35,11 @@ import (
 
 	"github.com/elastic/beats/heartbeat/hbtest"
 	"github.com/elastic/beats/heartbeat/monitors/wrappers"
+	schedule "github.com/elastic/beats/heartbeat/scheduler/schedule"
 	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/common/file"
+	"github.com/elastic/beats/libbeat/outputs/transport"
 	btesting "github.com/elastic/beats/libbeat/testing"
 	"github.com/elastic/go-lookslike"
 	"github.com/elastic/go-lookslike/isdef"
@@ -74,7 +76,8 @@ func testTLSRequest(t *testing.T, testURL string, useUrls bool, extraConfig map[
 	jobs, endpoints, err := create("tls", config)
 	require.NoError(t, err)
 
-	job := wrappers.WrapCommon(jobs, "tls", "", "http")[0]
+	sched, _ := schedule.Parse("@every 1s")
+	job := wrappers.WrapCommon(jobs, "tls", "", "http", sched, time.Duration(0))[0]
 
 	event := &beat.Event{}
 	_, err = job(event)
@@ -105,12 +108,10 @@ func httpBaseChecks(urlStr string) validator.Validator {
 func respondingHTTPChecks(url string, statusCode int) validator.Validator {
 	return lookslike.Compose(
 		httpBaseChecks(url),
+		httpBodyChecks(),
 		lookslike.MustCompile(map[string]interface{}{
 			"http": map[string]interface{}{
-				"response.status_code": statusCode,
-				"response.body.hash":   isdef.IsString,
-				// TODO add this isdef to lookslike in a robust way
-				"response.body.bytes":    isdef.IsIntGt(-1),
+				"response.status_code":   statusCode,
 				"rtt.content.us":         isdef.IsDuration,
 				"rtt.response_header.us": isdef.IsDuration,
 				"rtt.total.us":           isdef.IsDuration,
@@ -303,7 +304,8 @@ func TestLargeResponse(t *testing.T) {
 	jobs, _, err := create("largeresp", config)
 	require.NoError(t, err)
 
-	job := wrappers.WrapCommon(jobs, "test", "", "http")[0]
+	sched, _ := schedule.Parse("@every 1s")
+	job := wrappers.WrapCommon(jobs, "test", "", "http", sched, time.Duration(0))[0]
 
 	event := &beat.Event{}
 	_, err = job(event)
@@ -449,4 +451,83 @@ func TestUnreachableJob(t *testing.T) {
 		)),
 		event.Fields,
 	)
+}
+
+func TestRedirect(t *testing.T) {
+	redirectingPaths := map[string]string{
+		"/redirect_one": "/redirect_two",
+		"/redirect_two": "/",
+	}
+	expectedBody := "TargetBody"
+	server := httptest.NewServer(hbtest.RedirectHandler(redirectingPaths, expectedBody))
+	defer server.Close()
+
+	testURL := server.URL + "/redirect_one"
+	configSrc := map[string]interface{}{
+		"urls":                testURL,
+		"timeout":             "1s",
+		"check.response.body": expectedBody,
+		"max_redirects":       10,
+	}
+
+	config, err := common.NewConfigFrom(configSrc)
+	require.NoError(t, err)
+
+	jobs, _, err := create("redirect", config)
+	require.NoError(t, err)
+
+	sched, _ := schedule.Parse("@every 1s")
+	job := wrappers.WrapCommon(jobs, "test", "", "http", sched, time.Duration(0))[0]
+
+	// Run this test multiple times since in the past we had an issue where the redirects
+	// list was added onto by each request. See https://github.com/elastic/beats/pull/15944
+	for i := 0; i < 10; i++ {
+		event := &beat.Event{}
+		_, err = job(event)
+		require.NoError(t, err)
+
+		testslike.Test(
+			t,
+			lookslike.Strict(lookslike.Compose(
+				hbtest.BaseChecks("", "up", "http"),
+				hbtest.SummaryChecks(1, 0),
+				minimalRespondingHTTPChecks(testURL, 200),
+				lookslike.MustCompile(map[string]interface{}{
+					"http.response.redirects": []string{
+						server.URL + redirectingPaths["/redirect_one"],
+						server.URL + redirectingPaths["/redirect_two"],
+					},
+				}),
+			)),
+			event.Fields,
+		)
+	}
+}
+
+func TestNewRoundTripper(t *testing.T) {
+	configs := map[string]Config{
+		"Plain":      {Timeout: time.Second},
+		"With Proxy": {Timeout: time.Second, ProxyURL: "http://localhost:1234"},
+	}
+
+	for name, config := range configs {
+		t.Run(name, func(t *testing.T) {
+			transp, err := newRoundTripper(&config, &transport.TLSConfig{})
+			require.NoError(t, err)
+
+			if config.ProxyURL == "" {
+				require.Nil(t, transp.Proxy)
+			} else {
+				require.NotNil(t, transp.Proxy)
+			}
+
+			// It's hard to compare func types in tests
+			require.NotNil(t, transp.Dial)
+			require.NotNil(t, transport.TLSDialer)
+
+			require.Equal(t, (&transport.TLSConfig{}).ToConfig(), transp.TLSClientConfig)
+			require.True(t, transp.DisableKeepAlives)
+		})
+	}
+
 }

@@ -16,3 +16,7 @@ VIRTUALENV_PARAMS=-p /usr/bin/python2.7
 
 # Path to the libbeat Makefile
 -include $(LIBBEAT_MAKEFILE)
+
+.PHONY: copy-vendor
+copy-vendor:
+	mage vendorUpdate
