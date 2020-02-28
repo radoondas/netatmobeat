@@ -20,6 +20,7 @@
 package elasticsearch
 
 import (
+	"context"
 	"io/ioutil"
 	"math/rand"
 	"net"
@@ -350,11 +351,10 @@ func startTestProxy(t *testing.T, redirectURL string) *httptest.Server {
 	require.NoError(t, err)
 
 	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		req, err := http.NewRequest(r.Method, r.URL.String(), r.Body)
-		require.NoError(t, err)
+		req := r.Clone(context.Background())
+		req.RequestURI = ""
 		req.URL.Scheme = realURL.Scheme
 		req.URL.Host = realURL.Host
-		req.Header = r.Header
 
 		resp, err := http.DefaultClient.Do(req)
 		require.NoError(t, err)

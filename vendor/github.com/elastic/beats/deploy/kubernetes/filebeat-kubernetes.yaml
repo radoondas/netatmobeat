@@ -23,7 +23,7 @@ data:
     #filebeat.autodiscover:
     #  providers:
     #    - type: kubernetes
-    #      host: ${NODE_NAME}
+    #      node: ${NODE_NAME}
     #      hints.enabled: true
     #      hints.default_config:
     #        type: container
@@ -64,7 +64,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: filebeat
-        image: docker.elastic.co/beats/filebeat:7.5.1
+        image: docker.elastic.co/beats/filebeat:7.6.0
         args: [
           "-c", "/etc/filebeat.yml",
           "-e",
