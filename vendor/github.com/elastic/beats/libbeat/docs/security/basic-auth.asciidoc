@@ -25,7 +25,13 @@ output.elasticsearch:
 <1> Let's assume this user has the privileges required to publish events to
 {es}.
 <2> The example shows a hard-coded password, but you should store sensitive
-values in the <<keystore,secrets keystore>>.
+values
+ifndef::serverless[]
+in the <<keystore,secrets keystore>>.
+endif::[]
+ifdef::serverless[]
+in environment variables.
+endif::[]
 --
 ifndef::apm-server[]
 +
@@ -58,5 +64,4 @@ output.elasticsearch:
 --------------------------------------------------
 
 To learn more about {stack} security features and other types of
-authentication, see {ref}/elasticsearch-security.html[Securing the
-{stack}].
+authentication, see {ref}/secure-cluster.html[Secure a cluster].

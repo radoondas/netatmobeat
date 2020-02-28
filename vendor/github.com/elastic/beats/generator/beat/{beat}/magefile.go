@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/magefile/mage/mg"
+	"github.com/magefile/mage/sh"
 
 	devtools "github.com/elastic/beats/dev-tools/mage"
 	"github.com/elastic/beats/dev-tools/mage/target/build"
 	"github.com/elastic/beats/dev-tools/mage/target/common"
 	"github.com/elastic/beats/dev-tools/mage/target/pkg"
 	"github.com/elastic/beats/dev-tools/mage/target/unittest"
-	"github.com/elastic/beats/dev-tools/mage/target/update"
+	"github.com/elastic/beats/generator/common/beatgen"
 )
 
 func init() {
@@ -21,6 +22,11 @@ func init() {
 
 	devtools.BeatDescription = "One sentence description of the Beat."
 	devtools.BeatVendor = "{full_name}"
+}
+
+// VendorUpdate updates elastic/beats in the vendor dir
+func VendorUpdate() error {
+	return beatgen.VendorUpdate()
 }
 
 // Package packages the Beat for distribution.
@@ -32,19 +38,24 @@ func Package() {
 
 	devtools.UseCommunityBeatPackaging()
 
-	mg.Deps(update.Update)
+	mg.Deps(Update)
 	mg.Deps(build.CrossBuild, build.CrossBuildGoDaemon)
 	mg.SerialDeps(devtools.Package, pkg.PackageTest)
+}
+
+// Update updates the generated files (aka make update).
+func Update() error {
+	return sh.Run("make", "update")
+}
+
+// Fields generates a fields.yml for the Beat.
+func Fields() error {
+	return devtools.GenerateFieldsYAML()
 }
 
 // Config generates both the short/reference/docker configs.
 func Config() error {
 	return devtools.Config(devtools.AllConfigTypes, devtools.ConfigFileParams{}, ".")
-}
-
-//Fields generates a fields.yml for the Beat.
-func Fields() error {
-	return devtools.GenerateFieldsYAML()
 }
 
 // Clean cleans all generated files and build artifacts.

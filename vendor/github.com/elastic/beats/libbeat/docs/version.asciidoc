@@ -1,7 +1,7 @@
-:stack-version: 7.5.1
-:doc-branch: 7.5
-:go-version: 1.12.12
-:release-state: released
+:stack-version: 7.6.0
+:doc-branch: 7.6
+:go-version: 1.13.7
+:release-state: unreleased
 :python: 2.7.9
 :docker: 1.12
 :docker-compose: 1.11

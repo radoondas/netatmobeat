@@ -112,7 +112,9 @@ func configYML() error {
 
 // includeList generates include/list.go with imports for inputs.
 func includeList() error {
-	return devtools.GenerateIncludeListGo([]string{"input/*"}, []string{"module"})
+	options := devtools.DefaultIncludeListOptions()
+	options.ImportDirs = []string{"input/*"}
+	return devtools.GenerateIncludeListGo(options)
 }
 
 // Fields generates fields.yml and fields.go files for the Beat.
@@ -194,9 +196,7 @@ func GoUnitTest(ctx context.Context) error {
 // Use TEST_COVERAGE=true to enable code coverage profiling.
 // Use RACE_DETECTOR=true to enable the race detector.
 func GoIntegTest(ctx context.Context) error {
-	return devtools.RunIntegTest("goIntegTest", func() error {
-		return devtools.GoTest(ctx, devtools.DefaultGoTestIntegrationArgs())
-	})
+	return devtools.GoTest(ctx, devtools.DefaultGoTestIntegrationArgs())
 }
 
 // PythonUnitTest executes the python system tests.
