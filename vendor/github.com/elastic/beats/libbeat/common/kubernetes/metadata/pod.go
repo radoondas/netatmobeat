@@ -51,7 +51,7 @@ func (p *pod) Generate(obj kubernetes.Resource, opts ...FieldOptions) common.Map
 	out := p.resource.Generate("pod", obj, opts...)
 
 	if p.node != nil {
-		meta := p.node.GenerateFromName(po.Spec.NodeName)
+		meta := p.node.GenerateFromName(po.Spec.NodeName, WithLabels("node"))
 		if meta != nil {
 			out.Put("node", meta["node"])
 		} else {
