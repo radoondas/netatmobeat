@@ -476,6 +476,8 @@ metricbeat.modules:
   metricsets: ["info", "stat"]
   period: 10s
   hosts: ["tcp://127.0.0.1:14567"]
+  username : "admin"
+  password : "admin"
   enabled: true
 
 #--------------------------------- HTTP Module ---------------------------------
@@ -611,9 +613,10 @@ metricbeat.modules:
     - system
     - volume
   period: 10s
-  hosts: ["localhost:10255"]
   enabled: true
-  #bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  hosts: ["https://${HOSTNAME}:10250"]
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  ssl.verification_mode: "none"
   #ssl.certificate_authorities:
   #  - /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
   #ssl.certificate: "/etc/pki/client/cert.pem"
@@ -884,7 +887,7 @@ metricbeat.modules:
   #password: "secret"
 
   # This can be used for service account based authorization:
-  #  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  #bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
   #ssl.certificate_authorities:
   #  - /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
 
@@ -1998,10 +2001,10 @@ setup.template.settings:
 # to load your own lifecycle policy.
 #setup.ilm.policy_file:
 
-# Disable the check for an existing lifecycle policy. The default is false. If
+# Disable the check for an existing lifecycle policy. The default is true. If
 # you disable this check, set setup.ilm.overwrite: true so the lifecycle policy
 # can be installed.
-#setup.ilm.check_exists: false
+#setup.ilm.check_exists: true
 
 # Overwrite the lifecycle policy at startup. The default is false.
 #setup.ilm.overwrite: false
@@ -2025,6 +2028,9 @@ setup.kibana:
 
   # Optional HTTP path
   #path: ""
+
+  # Optional Kibana space ID.
+  #space.id: ""
 
   # Use SSL settings for HTTPS. Default is true.
   #ssl.enabled: true

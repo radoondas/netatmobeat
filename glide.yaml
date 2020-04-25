@@ -1,7 +1,7 @@
 package: github.com/radoondas/netatmobeat
 import:
 - package: github.com/elastic/beats
-  version: v7.6.0
+  version: v7.6.2
 - package: github.com/magefile/mage
   version: v1.8.0
 - package: github.com/mitchellh/hashstructure

@@ -18,6 +18,12 @@ env:
     - TRAVIS_MINIKUBE_VERSION=v0.25.2
     - MACOSX_DEPLOYMENT_TARGET=10.15
 
+# Only run CI jobs on specific branches.
+# To keep the number of Travis CI jobs in check, we decided to configure Travis to only kick off CI jobs for the master branch.
+branches:
+  only:
+  - master
+
 jobs:
   include:
     # General checks
@@ -235,7 +241,7 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
-  - if [ $TRAVIS_OS_NAME = osx ]; then pip install virtualenv; fi
+  - if [ $TRAVIS_OS_NAME = osx ]; then pip install virtualenv==16.7.9; fi
 
 
 # Skips installations step
