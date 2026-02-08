@@ -1,3 +1,66 @@
+################### Netatmobeat Configuration Reference #########################
+
+############################# Netatmobeat ######################################
+
+netatmobeat:
+  # Authentication: OAuth2 credentials for the Netatmo API.
+  # Create an application at https://dev.netatmo.com/apps/ to obtain these.
+  client_id: ""
+  client_secret: ""
+
+  # OAuth2 refresh token, obtained from the Token Generator at
+  # https://dev.netatmo.com/apps/ with scope "read_station".
+  # The beat exchanges this for an access token at startup and persists
+  # rotated tokens to the token file automatically.
+  # Required for first-time setup. After the first successful refresh,
+  # subsequent restarts use the token file.
+  #refresh_token: ""
+
+  # Optional: short-lived access token for quick testing.
+  # Cannot be refreshed without a refresh_token. Expires in ~3 hours.
+  #access_token: ""
+
+  # Path to persist rotated OAuth tokens. After every token refresh, the new
+  # access_token and refresh_token are written here atomically. On restart,
+  # the beat loads tokens from this file before falling back to the config.
+  # IMPORTANT: In Docker/Kubernetes, this must be on a persistent volume.
+  token_file: "netatmobeat-tokens.json"
+
+  # DEPRECATED: username/password authentication was removed by Netatmo in
+  # July 2023. These fields are ignored if present.
+  #username: ""
+  #password: ""
+
+  # Public weather data configuration.
+  # Define geographic regions to gather data from. Each region runs in its
+  # own goroutine. Regions are approximate — Netatmo returns cached data for
+  # the bounding box area.
+  public_weather:
+    enabled: false
+    # How often to fetch data for each region. 10 minutes is the recommended
+    # minimum to avoid rate limiting.
+    period: 10m
+    regions:
+      - region:
+        enabled: true
+        name: "region_name"
+        description: "Human-readable description"
+        # Bounding box coordinates (WGS84)
+        # lat_ne/lon_ne: north-east corner
+        # lat_sw/lon_sw: south-west corner
+        lat_ne: 49.650266
+        lon_ne: 22.780239
+        lat_sw: 47.780377
+        lon_sw: 16.759731
+
+  # Weather station data configuration.
+  # Fetches data for specific station IDs. Each station runs in its own goroutine.
+  weather_stations:
+    enabled: false
+    # How often to fetch data for each station. 5 minutes is recommended.
+    period: 5m
+    # List of station MAC addresses (format: "aa:bb:cc:dd:ee:ff")
+    ids: []
 
 #================================ General ======================================
 

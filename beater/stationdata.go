@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -116,53 +115,24 @@ type User struct {
 }
 
 func (bt *Netatmobeat) GetStationsData(stationID string) error {
-	data := url.Values{}
-	//token:=bt.creds.Access_token
-	data.Add("access_token", bt.creds.Access_token)
-	data.Add("device_id", stationID)
-	data.Add("get_favorites", "false")
-	data.Add("scope", "read_station")
-
-	u, _ := url.ParseRequestURI(netatmoApiUrl)
-	u.Path = UriPathStation
-	urlStr := u.String()
-
-	client := &http.Client{}
-
-	r, _ := http.NewRequest(http.MethodPost, urlStr, strings.NewReader(data.Encode())) // <-- URL-encoded payload
-	r.Header.Add("Content-Type", cookieContentType)
-	r.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
-
-	resp, err := client.Do(r)
-
-	if err != nil {
-		log.Fatal(err)
-		return err
+	if err := bt.EnsureValidToken(); err != nil {
+		return fmt.Errorf("token validation failed before station data request: %v", err)
 	}
 
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := bt.fetchStationData(stationID)
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 
 	sdata := StationsData{}
-	err = json.Unmarshal([]byte(body), &sdata)
-	if err != nil {
-		fmt.Printf("error: %v", err)
-		return err
+	if err := json.Unmarshal(body, &sdata); err != nil {
+		return fmt.Errorf("failed to parse station data response: %v", err)
 	}
 
 	transformedData := bt.TransformStationData(sdata)
 
-	//logp.NewLogger(selector).Debug("Station data: ", transformedData)
-
 	ts := time.Now()
 	for _, data := range transformedData {
-		//logp.NewLogger(selector).Debug("Data: ", data)
-
 		event := beat.Event{
 			Timestamp: ts,
 			Fields: common.MapStr{
@@ -170,12 +140,74 @@ func (bt *Netatmobeat) GetStationsData(stationID string) error {
 				"netatmo": data,
 			},
 		}
-		logp.NewLogger(selector).Debug("Event: ", event)
 		bt.client.Publish(event)
-		//logp.NewLogger(selector).Info("Event sent")
 	}
 
 	return nil
+}
+
+// fetchStationData performs the HTTP request for station data.
+// On auth error (401/403), forces one token refresh and retries once.
+// Note: if EnsureValidToken already refreshed, the refreshMu re-check inside
+// RefreshAccessToken will skip the redundant refresh (no double-rotation risk).
+func (bt *Netatmobeat) fetchStationData(stationID string) ([]byte, error) {
+	logger := logp.NewLogger(selector)
+
+	body, statusCode, err := bt.doStationDataRequest(stationID)
+	if err != nil {
+		return nil, err
+	}
+
+	if isAuthError(statusCode) {
+		logger.Warn("Station data request got auth error (", statusCode, "), forcing token refresh and retrying.")
+		if refreshErr := bt.RefreshAccessToken(); refreshErr != nil {
+			return nil, fmt.Errorf("token refresh after auth error failed: %v", refreshErr)
+		}
+		body, statusCode, err = bt.doStationDataRequest(stationID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if statusCode != http.StatusOK {
+		return nil, fmt.Errorf("station data request failed with HTTP %d", statusCode)
+	}
+
+	return body, nil
+}
+
+func (bt *Netatmobeat) doStationDataRequest(stationID string) ([]byte, int, error) {
+	data := url.Values{}
+	data.Add("access_token", bt.getAccessToken())
+	data.Add("device_id", stationID)
+	data.Add("get_favorites", "false")
+	data.Add("scope", "read_station")
+
+	u, _ := url.ParseRequestURI(bt.apiBaseURL)
+	u.Path = UriPathStation
+	urlStr := u.String()
+
+	encoded := data.Encode()
+
+	r, err := http.NewRequestWithContext(bt.ctx, http.MethodPost, urlStr, strings.NewReader(encoded))
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to create station data request: %v", err)
+	}
+	r.Header.Add("Content-Type", cookieContentType)
+	r.Header.Add("Content-Length", strconv.Itoa(len(encoded)))
+
+	resp, err := bt.httpClient.Do(r)
+	if err != nil {
+		return nil, 0, fmt.Errorf("station data request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, resp.StatusCode, fmt.Errorf("failed to read station data response: %v", err)
+	}
+
+	return body, resp.StatusCode, nil
 }
 
 func (bt *Netatmobeat) TransformStationData(data StationsData) []common.MapStr {

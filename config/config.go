@@ -6,9 +6,14 @@ package config
 import "time"
 
 type Config struct {
-	ClientId        string          `config:"client_id"`
-	ClientSecret    string          `config:"client_secret"`
-	Username        string          `config:"username"`
+	ClientId     string `config:"client_id"`
+	ClientSecret string `config:"client_secret"`
+	AccessToken  string `config:"access_token"`
+	RefreshToken string `config:"refresh_token"`
+	TokenFile    string `config:"token_file"`
+	// Deprecated: password grant is no longer supported by Netatmo OAuth.
+	Username string `config:"username"`
+	// Deprecated: password grant is no longer supported by Netatmo OAuth.
 	Password        string          `config:"password"`
 	WeatherStations WeatherStations `config:"weather_stations"`
 	PublicWeather   PublicWeather   `config:"public_weather"`
@@ -37,7 +42,5 @@ type Region struct {
 }
 
 var DefaultConfig = Config{
-	//Period:   1 * time.Second,
-	Username: "",
-	Password: "",
+	TokenFile: "netatmobeat-tokens.json",
 }

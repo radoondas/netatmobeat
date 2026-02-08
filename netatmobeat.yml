@@ -4,13 +4,23 @@
 
 netatmobeat:
   # Authentication configuration
-  # Create application in https://dev.netatmo.com and paste values for authorisation
+  # Create application at https://dev.netatmo.com and paste values for authorisation
   client_id: "abcdefghijklmn"
   client_secret: "mysecretfromapp"
 
-  # username/password to your https://dev.netatmo.com account for authentication
-  username: "user@email"
-  password: "password"
+  # Obtain a refresh token from https://dev.netatmo.com/apps/ using the Token Generator
+  # with scope "read_station". The beat will exchange it for an access token at startup
+  # and persist rotated tokens to the token file automatically.
+  refresh_token: "599163c4f5459521648b4586|5d9b1ac465d12f2e37a70da78f6166ae"
+
+  # Path to persist rotated OAuth tokens (default: netatmobeat-tokens.json).
+  # After first successful refresh, subsequent restarts use this file automatically.
+  # token_file: "netatmobeat-tokens.json"
+
+  # DEPRECATED: username/password authentication was removed by Netatmo in July 2023.
+  # These fields are ignored if present.
+  # username: "user@email"
+  # password: "password"
 
   # Public weather configuration. Define regions you want to gather data from. Regions are not exact shapes in terms of
   # response as they are provided from Netatmo cache.
