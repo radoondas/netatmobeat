@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -71,62 +70,24 @@ type Measure struct {
 // * filter no true
 //True to exclude station with abnormal temperature measures. Default is false.
 func (bt *Netatmobeat) GetRegionData(region config.Region) error {
-
-	// Prepare REST data
-	data := url.Values{}
-	data.Add("access_token", bt.creds.Access_token)
-	data.Add("lat_ne", strconv.FormatFloat(region.LatNe, 'f', -1, 32))
-	data.Add("lon_ne", strconv.FormatFloat(region.LonNe, 'f', -1, 32))
-	data.Add("lat_sw", strconv.FormatFloat(region.LatSw, 'f', -1, 32))
-	data.Add("lon_sw", strconv.FormatFloat(region.LonSw, 'f', -1, 32))
-
-	logp.NewLogger(selector).Debug("Shape name: ", region.Name, ", Shape name: ", region.Description)
-
-	u, _ := url.ParseRequestURI(netatmoApiUrl)
-	u.Path = UriPathPublicData
-	urlStr := u.String()
-
-	client := &http.Client{}
-
-	r, _ := http.NewRequest(http.MethodPost, urlStr, strings.NewReader(data.Encode())) // <-- URL-encoded payload
-	r.Header.Add("Content-Type", cookieContentType)
-	r.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
-	r.Header.Add("Cache-Control", "no-cache, must-revalidate")
-
-	resp, err := client.Do(r)
-
-	if err != nil {
-		log.Fatal(err)
-		return err
+	if err := bt.EnsureValidToken(); err != nil {
+		return fmt.Errorf("token validation failed before public data request: %v", err)
 	}
 
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		logp.NewLogger(selector).Error("Request of Public Data failed. Response code: ", resp.StatusCode, " Message: ", resp.Status)
-		return fmt.Errorf("Error requesting public data: %v - %v", resp.StatusCode, resp.Status)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := bt.fetchPublicData(region)
 	if err != nil {
-		//panic(err)
-		log.Fatal(err)
 		return err
 	}
 
 	sdata := PublicData{}
-	err = json.Unmarshal([]byte(body), &sdata)
-	if err != nil {
-		fmt.Printf("error: %v", err)
-		return err
+	if err := json.Unmarshal(body, &sdata); err != nil {
+		return fmt.Errorf("failed to parse public data response: %v", err)
 	}
 
 	transformedData := bt.TransformPublicData(sdata, region.Name, region.Description)
 
 	ts := time.Now()
 	for _, data := range transformedData {
-		//logp.NewLogger(selector).Debug("Data: ", data)
-
 		hash, _ := hashstructure.Hash(data, nil)
 		myid := strconv.FormatUint(hash, 10)
 
@@ -140,12 +101,77 @@ func (bt *Netatmobeat) GetRegionData(region config.Region) error {
 				"netatmo": data,
 			},
 		}
-		//logp.NewLogger(selector).Debug("Event: ", event)
 		bt.client.Publish(event)
-		//logp.NewLogger(selector).Info("Event sent")
 	}
 
 	return nil
+}
+
+// fetchPublicData performs the HTTP request for public data.
+// On auth error (401/403), forces one token refresh and retries once.
+// Note: if EnsureValidToken already refreshed, the refreshMu re-check inside
+// RefreshAccessToken will skip the redundant refresh (no double-rotation risk).
+func (bt *Netatmobeat) fetchPublicData(region config.Region) ([]byte, error) {
+	logger := logp.NewLogger(selector)
+	logger.Debug("Shape name: ", region.Name, ", Description: ", region.Description)
+
+	body, statusCode, err := bt.doPublicDataRequest(region)
+	if err != nil {
+		return nil, err
+	}
+
+	if isAuthError(statusCode) {
+		logger.Warn("Public data request got auth error (", statusCode, "), forcing token refresh and retrying.")
+		if refreshErr := bt.RefreshAccessToken(); refreshErr != nil {
+			return nil, fmt.Errorf("token refresh after auth error failed: %v", refreshErr)
+		}
+		body, statusCode, err = bt.doPublicDataRequest(region)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if statusCode != http.StatusOK {
+		return nil, fmt.Errorf("public data request failed with HTTP %d", statusCode)
+	}
+
+	return body, nil
+}
+
+func (bt *Netatmobeat) doPublicDataRequest(region config.Region) ([]byte, int, error) {
+	data := url.Values{}
+	data.Add("access_token", bt.getAccessToken())
+	data.Add("lat_ne", strconv.FormatFloat(region.LatNe, 'f', -1, 32))
+	data.Add("lon_ne", strconv.FormatFloat(region.LonNe, 'f', -1, 32))
+	data.Add("lat_sw", strconv.FormatFloat(region.LatSw, 'f', -1, 32))
+	data.Add("lon_sw", strconv.FormatFloat(region.LonSw, 'f', -1, 32))
+
+	u, _ := url.ParseRequestURI(bt.apiBaseURL)
+	u.Path = UriPathPublicData
+	urlStr := u.String()
+
+	encoded := data.Encode()
+
+	r, err := http.NewRequestWithContext(bt.ctx, http.MethodPost, urlStr, strings.NewReader(encoded))
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to create public data request: %v", err)
+	}
+	r.Header.Add("Content-Type", cookieContentType)
+	r.Header.Add("Content-Length", strconv.Itoa(len(encoded)))
+	r.Header.Add("Cache-Control", "no-cache, must-revalidate")
+
+	resp, err := bt.httpClient.Do(r)
+	if err != nil {
+		return nil, 0, fmt.Errorf("public data request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, resp.StatusCode, fmt.Errorf("failed to read public data response: %v", err)
+	}
+
+	return body, resp.StatusCode, nil
 }
 
 func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, regionDescription string) []common.MapStr {

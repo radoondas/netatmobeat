@@ -2,8 +2,15 @@ netatmobeat:
   client_id: "abcdefghijklmn"
   client_secret: "mysecretfromapp"
 
-  username: "user@email"
-  password: "password"
+  # Obtain a refresh token from https://dev.netatmo.com/apps/ (Token Generator, scope: read_station)
+  refresh_token: "your_refresh_token_here"
+
+  # Token file must be on a persistent volume in Docker/Kubernetes deployments
+  # token_file: "/data/netatmobeat-tokens.json"
+
+  # DEPRECATED: username/password no longer supported by Netatmo API
+  # username: "user@email"
+  # password: "password"
 
   public_weather:
     enabled: true

@@ -1,0 +1,7 @@
+{
+  "access_token": "",
+  "refresh_token": "",
+  "expires_in": 10800,
+  "obtained_at_unix": 0,
+  "scope": ["read_station"]
+}

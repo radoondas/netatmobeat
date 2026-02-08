@@ -16,21 +16,45 @@ Download and install appropriate package for your system. Check release [page](h
 
 For docker image `docker pull radoondas/netatmobeat`
 
+## Authentication
+
+Netatmo removed username/password authentication (password grant) in July 2023. The beat now uses **OAuth2 refresh tokens** exclusively.
+
+### First-time setup
+
+1. Go to [https://dev.netatmo.com/apps/](https://dev.netatmo.com/apps/) and create (or select) your application
+2. Note your **Client ID** and **Client Secret**
+3. In the **Token Generator** section, select the `read_station` scope, click **Generate Token**, and authorize
+4. Copy the **refresh token** into your `netatmobeat.yml`
+
+### Token rotation
+
+Since May 2024, Netatmo rotates refresh tokens on every use -- the old refresh token is invalidated immediately. The beat persists the latest token pair to a file (`netatmobeat-tokens.json` by default) after every refresh. On subsequent restarts, the beat loads tokens from this file automatically.
+
+If the token file is lost or the refresh token expires, you will need to repeat the setup steps above to obtain a new refresh token.
+
+For troubleshooting, recovery procedures, and key log message interpretation, see the [Operational Runbook](docs/RUNBOOK.md).
+
 ## Configuration
 
-Configure authentication after you create application in https://dev.netatmo.com and paste values for your application.
+### Authentication
 ```yaml
+netatmobeat:
   client_id: "abcdefghijklmn"
   client_secret: "mysecretfromapp"
+
+  # Obtain from https://dev.netatmo.com/apps/ Token Generator (scope: read_station)
+  refresh_token: "your_refresh_token_here"
+
+  # Path to persist rotated tokens (default: netatmobeat-tokens.json)
+  # token_file: "netatmobeat-tokens.json"
 ```
 
- Username/password to your Netatmo dev account
-```yaml
-  username: "user@email"
-  password: "password"
-```
+> **Note:** The `username` and `password` fields are no longer supported and will be ignored if present.
 
-Public weather configuration. Define regions you want to gather data from. Regions are not exact shapes in terms of a response as they are provided from Netatmo cache.
+### Public weather data
+
+Define geographic regions to gather data from. Regions are not exact shapes in terms of response as they are provided from Netatmo cache.
 ```yaml
   public_weather:
     enabled: true
@@ -54,8 +78,9 @@ Public weather configuration. Define regions you want to gather data from. Regio
         lon_sw: -9.438251
 ```
 
-Station data configuration requires at least one station ID in order to pull data from. You have to specify also Period for how often you want to pull data. I suggest 5m.
+### Station data
 
+Requires at least one station ID. Suggested period is 5m.
 ```yaml
   weather_stations:
     enabled: false
@@ -63,12 +88,33 @@ Station data configuration requires at least one station ID in order to pull dat
     ids: [ "st:at:io:ni:dd" ]
 ```
 
-Configure your output and/or monitoring options
+Configure your output and/or monitoring options. See `netatmobeat.yml` for the full reference.
+
+### Docker / Kubernetes
+
+When running in containers, the token file must be on a **persistent volume** so rotated tokens survive container restarts:
+```yaml
+  token_file: "/data/netatmobeat-tokens.json"
+```
+
+See `netatmobeat.docker.yml` for a complete Docker example.
+
+## Validating Configuration
+
+Test that the config file is syntactically correct:
+```
+./netatmobeat test config -c netatmobeat.yml
+```
+
+Authentication is validated at startup — the beat exits immediately with a clear error if credentials are invalid:
+```
+./netatmobeat -c netatmobeat.yml -e
+```
 
 ## Run
 
 ```
-./netatmobeat -c netatmobeat.yml -e 
+./netatmobeat -c netatmobeat.yml -e
 ```
 
 ## Visualisations

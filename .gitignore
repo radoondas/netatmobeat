@@ -6,5 +6,9 @@
 /netatmobeat.test
 *.pyc
 netatmobeat.iml
+/data/
 /logs/
 /docker/
+netatmobeat-tokens.json
+.claude
+CLAUDE.md
