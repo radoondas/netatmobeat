@@ -12,3 +12,5 @@ netatmobeat.iml
 netatmobeat-tokens.json
 .claude
 CLAUDE.md
+/.gocache/
+/.gomodcache/

@@ -6,16 +6,16 @@ package beater
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/elastic/beats/libbeat/beat"
-	"github.com/elastic/beats/libbeat/common"
-	"github.com/elastic/beats/libbeat/logp"
+	"github.com/elastic/beats/v7/libbeat/beat"
+	"github.com/elastic/elastic-agent-libs/logp"
+	"github.com/elastic/elastic-agent-libs/mapstr"
 )
 
 const (
@@ -135,7 +135,7 @@ func (bt *Netatmobeat) GetStationsData(stationID string) error {
 	for _, data := range transformedData {
 		event := beat.Event{
 			Timestamp: ts,
-			Fields: common.MapStr{
+			Fields: mapstr.M{
 				"type":    "netatmobeat",
 				"netatmo": data,
 			},
@@ -202,7 +202,7 @@ func (bt *Netatmobeat) doStationDataRequest(stationID string) ([]byte, int, erro
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, resp.StatusCode, fmt.Errorf("failed to read station data response: %v", err)
 	}
@@ -210,15 +210,15 @@ func (bt *Netatmobeat) doStationDataRequest(stationID string) ([]byte, int, erro
 	return body, resp.StatusCode, nil
 }
 
-func (bt *Netatmobeat) TransformStationData(data StationsData) []common.MapStr {
+func (bt *Netatmobeat) TransformStationData(data StationsData) []mapstr.M {
 
-	modulesMeasurements := []common.MapStr{}
+	modulesMeasurements := []mapstr.M{}
 
 	for d, device := range data.Body.Devices {
 		//logp.NewLogger(selector).Debug("Device data: ", device)
 
 		// Dashboard data
-		dd := common.MapStr{
+		dd := mapstr.M{
 			"time_utc":         device.Dashboard_data.Time_utc * 1000,
 			"temperature":      device.Dashboard_data.Temperature,
 			"co2":              device.Dashboard_data.CO2,
@@ -235,7 +235,7 @@ func (bt *Netatmobeat) TransformStationData(data StationsData) []common.MapStr {
 		}
 
 		// measurement
-		measureMainUnit := common.MapStr{
+		measureMainUnit := mapstr.M{
 			"station_id":   device.Device_id,
 			"place":        device.Place,
 			"station_type": device.Type,
@@ -251,7 +251,7 @@ func (bt *Netatmobeat) TransformStationData(data StationsData) []common.MapStr {
 		for _, module := range data.Body.Devices[d].Modules {
 			//logp.NewLogger(selector).Debug("Module data: ", module)
 
-			ddm := common.MapStr{
+			ddm := mapstr.M{
 				"time_utc":      module.ModuleDashboard_data.Time_utc * 1000,
 				"temperature":   module.ModuleDashboard_data.Temperature,
 				"humidity":      module.ModuleDashboard_data.Humidity,
@@ -263,7 +263,7 @@ func (bt *Netatmobeat) TransformStationData(data StationsData) []common.MapStr {
 			}
 
 			// measurement
-			measureModule := common.MapStr{
+			measureModule := mapstr.M{
 				"station_id":      device.Device_id,
 				"module_id":       module.Module_id,
 				"place":           device.Place,

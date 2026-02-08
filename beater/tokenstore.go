@@ -3,7 +3,6 @@ package beater
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -28,7 +27,7 @@ func ValidateTokenFilePath(path string) error {
 	}
 
 	// Probe-write a temp file to verify writability
-	tmpFile, err := ioutil.TempFile(dir, ".netatmobeat-probe-*.tmp")
+	tmpFile, err := os.CreateTemp(dir, ".netatmobeat-probe-*.tmp")
 	if err != nil {
 		return fmt.Errorf("token file directory %s is not writable: %w", dir, err)
 	}
@@ -42,7 +41,7 @@ func ValidateTokenFilePath(path string) error {
 // LoadTokenFile reads a stored token from a JSON file at the given path.
 // Returns an error if the file does not exist or cannot be parsed.
 func LoadTokenFile(path string) (*StoredToken, error) {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read token file %s: %w", path, err)
 	}
@@ -65,7 +64,7 @@ func SaveTokenFile(path string, token StoredToken) error {
 	}
 
 	dir := filepath.Dir(path)
-	tmpFile, err := ioutil.TempFile(dir, ".netatmobeat-token-*.tmp")
+	tmpFile, err := os.CreateTemp(dir, ".netatmobeat-token-*.tmp")
 	if err != nil {
 		return fmt.Errorf("failed to create temp file in %s: %w", dir, err)
 	}

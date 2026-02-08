@@ -1,4 +1,4 @@
-// +build mage
+//go:build mage
 
 package main
 
@@ -9,12 +9,11 @@ import (
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 
-	devtools "github.com/elastic/beats/dev-tools/mage"
-	"github.com/elastic/beats/dev-tools/mage/target/build"
-	"github.com/elastic/beats/dev-tools/mage/target/common"
-	"github.com/elastic/beats/dev-tools/mage/target/pkg"
-	"github.com/elastic/beats/dev-tools/mage/target/unittest"
-	"github.com/elastic/beats/generator/common/beatgen"
+	devtools "github.com/elastic/beats/v7/dev-tools/mage"
+	"github.com/elastic/beats/v7/dev-tools/mage/target/build"
+	"github.com/elastic/beats/v7/dev-tools/mage/target/common"
+	"github.com/elastic/beats/v7/dev-tools/mage/target/pkg"
+	"github.com/elastic/beats/v7/dev-tools/mage/target/unittest"
 )
 
 func init() {
@@ -24,11 +23,6 @@ func init() {
 	devtools.BeatVendor = "radoondas"
 
 	devtools.BeatProjectType = devtools.CommunityProject
-}
-
-// VendorUpdate updates elastic/beats in the vendor dir
-func VendorUpdate() error {
-	return beatgen.VendorUpdate()
 }
 
 // Package packages the Beat for distribution.

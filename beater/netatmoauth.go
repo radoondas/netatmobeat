@@ -3,7 +3,7 @@ package beater
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/elastic/beats/libbeat/logp"
+	"github.com/elastic/elastic-agent-libs/logp"
 )
 
 // OAuthErrorResponse represents the error payload returned by Netatmo's OAuth endpoint.
@@ -202,7 +202,7 @@ func (bt *Netatmobeat) RefreshAccessToken() error {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		bt.refreshFailCount++
 		return fmt.Errorf("failed to read refresh response body: %v", err)

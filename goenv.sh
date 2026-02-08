@@ -6,9 +6,7 @@
 #   ./goenv.sh go test ./beater/...
 #   ./goenv.sh make
 
-export GOROOT="/Users/rado/opt/go-1.15.5"
+export GOROOT="/Users/rado/opt/go-1.24.13"
 export PATH="$GOROOT/bin:$PATH"
-export GOPATH="/Users/rado/workspace/go"
-export GO111MODULE=off
 
 exec "$@"

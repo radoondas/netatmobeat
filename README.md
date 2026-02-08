@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/radoondas/netatmobeat.svg?branch=7.3)](https://travis-ci.org/radoondas/netatmobeat)
-
 # Netatmobeat
 
 Welcome to Netatmobeat. 
@@ -99,6 +97,38 @@ When running in containers, the token file must be on a **persistent volume** so
 
 See `netatmobeat.docker.yml` for a complete Docker example.
 
+### Elasticsearch output
+
+**Direct connection:**
+```yaml
+output.elasticsearch:
+  hosts: ["localhost:9200"]
+  username: "elastic"
+  password: "changeme"
+```
+
+**With API key** (instead of username/password):
+```yaml
+output.elasticsearch:
+  hosts: ["https://your-cluster:9243"]
+  api_key: "id:api_key"
+```
+
+**Elastic Cloud:**
+```yaml
+cloud.id: "deployment-name:base64encodedstring"
+cloud.auth: "elastic:password"
+```
+
+`cloud.id` automatically sets the Elasticsearch and Kibana hosts. You can also combine `cloud.id` with an API key:
+```yaml
+cloud.id: "deployment-name:base64encodedstring"
+output.elasticsearch:
+  api_key: "id:api_key"
+```
+
+See `netatmobeat.reference.yml` for all available output options.
+
 ## Validating Configuration
 
 Test that the config file is syntactically correct:
@@ -122,5 +152,26 @@ This is an example of temperature visualisation
 
 ![Map](docs/img/map_vis.png)
 
+## Elasticsearch 9.x Compatibility
+
+Netatmobeat ships with **composable index templates** compatible with ES 9.x (which removed the legacy `_template` API). Load them before first run:
+
+```bash
+curl -X PUT "localhost:9200/_index_template/netatmobeat-publicdata" \
+  -H 'Content-Type: application/json' -d @netatmobeat.template.publicdata.json
+
+curl -X PUT "localhost:9200/_index_template/netatmobeat-stationdata" \
+  -H 'Content-Type: application/json' -d @netatmobeat.template.stastiondata.json
+```
+
+The default config disables libbeat's automatic template and ILM management (`setup.template.enabled: false`, `setup.ilm.enabled: false`) since the beat targets ES 9.x.
+
 ## Build
-If you want to build Netatmobeat from scratch, follow [build](BUILD.md) documentation.
+
+**Prerequisites:** Go 1.24+
+
+```bash
+go build ./...
+```
+
+For detailed build, test, and packaging instructions, see [BUILD.md](BUILD.md).

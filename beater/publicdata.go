@@ -7,16 +7,16 @@ package beater
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/elastic/beats/libbeat/beat"
-	"github.com/elastic/beats/libbeat/common"
-	"github.com/elastic/beats/libbeat/logp"
+	"github.com/elastic/beats/v7/libbeat/beat"
+	"github.com/elastic/elastic-agent-libs/logp"
+	"github.com/elastic/elastic-agent-libs/mapstr"
 
 	"github.com/mitchellh/hashstructure"
 	"github.com/radoondas/netatmobeat/config"
@@ -58,17 +58,17 @@ type Measure struct {
 
 // * access_token yes
 // * lat_ne yes 15
-//latitude of the north east corner of the requested area. -85 <= lat_ne <= 85 and lat_ne>lat_sw
+// latitude of the north east corner of the requested area. -85 <= lat_ne <= 85 and lat_ne>lat_sw
 // * lon_ne yes 20
-//Longitude of the north east corner of the requested area. -180 <= lon_ne <= 180 and lon_ne>lon_sw
+// Longitude of the north east corner of the requested area. -180 <= lon_ne <= 180 and lon_ne>lon_sw
 // * lat_sw yes -15
-//latitude of the south west corner of the requested area. -85 <= lat_sw <= 85
+// latitude of the south west corner of the requested area. -85 <= lat_sw <= 85
 // * lon_sw yes -20
-//Longitude of the south west corner of the requested area. -180 <= lon_sw <= 180
+// Longitude of the south west corner of the requested area. -180 <= lon_sw <= 180
 // * required_data no rain, humidity
-//To filter stations based on relevant measurements you want (e.g. rain will only return stations with rain gauges). Default is no filter. You can find all measurements available on the Thermostat page.
+// To filter stations based on relevant measurements you want (e.g. rain will only return stations with rain gauges). Default is no filter. You can find all measurements available on the Thermostat page.
 // * filter no true
-//True to exclude station with abnormal temperature measures. Default is false.
+// True to exclude station with abnormal temperature measures. Default is false.
 func (bt *Netatmobeat) GetRegionData(region config.Region) error {
 	if err := bt.EnsureValidToken(); err != nil {
 		return fmt.Errorf("token validation failed before public data request: %v", err)
@@ -92,11 +92,11 @@ func (bt *Netatmobeat) GetRegionData(region config.Region) error {
 		myid := strconv.FormatUint(hash, 10)
 
 		event := beat.Event{
-			Meta: common.MapStr{
+			Meta: mapstr.M{
 				"id": myid,
 			},
 			Timestamp: ts,
-			Fields: common.MapStr{
+			Fields: mapstr.M{
 				"type":    "netatmobeat",
 				"netatmo": data,
 			},
@@ -166,7 +166,7 @@ func (bt *Netatmobeat) doPublicDataRequest(region config.Region) ([]byte, int, e
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, resp.StatusCode, fmt.Errorf("failed to read public data response: %v", err)
 	}
@@ -174,16 +174,16 @@ func (bt *Netatmobeat) doPublicDataRequest(region config.Region) ([]byte, int, e
 	return body, resp.StatusCode, nil
 }
 
-func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, regionDescription string) []common.MapStr {
+func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, regionDescription string) []mapstr.M {
 
-	var stations []common.MapStr
+	var stations []mapstr.M
 
 	//index instead _
 	for _, station := range data.Stations {
-		pubdata := common.MapStr{}
-		measures := common.MapStr{}
+		pubdata := mapstr.M{}
+		measures := mapstr.M{}
 
-		s := common.MapStr{
+		s := mapstr.M{
 			"station_id":       station.StationId,
 			"place":            station.Place,
 			"mark":             station.Mark,
@@ -202,7 +202,7 @@ func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, r
 						case "temperature":
 							//fmt.Printf("type: %v, mes_date: %v, val: %v\n", mes, k, v[i])
 							dt, _ := strconv.Atoi(k)
-							temperature := common.MapStr{
+							temperature := mapstr.M{
 								"timestamp": dt * 1000,
 								"value":     v[i],
 								"moduleId":  moduleId,
@@ -212,7 +212,7 @@ func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, r
 						case "humidity":
 							//fmt.Printf("type: %v, mes_date: %v, val: %v\n", mes, k, v[i])
 							dt, _ := strconv.Atoi(k)
-							humidity := common.MapStr{
+							humidity := mapstr.M{
 								//"mesTimestamp": time.Unix(int64(dt), 0).String(),
 								"timestamp": dt * 1000,
 								"value":     v[i],
@@ -223,7 +223,7 @@ func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, r
 						case "pressure":
 							//fmt.Printf("type: %v, mes_date: %v, val: %v\n", mes, k, v[i])
 							dt, _ := strconv.Atoi(k)
-							pressure := common.MapStr{
+							pressure := mapstr.M{
 								//"mesTimestamp": time.Unix(int64(dt), 0).String(),
 								"timestamp": dt * 1000,
 								"value":     v[i],
@@ -237,7 +237,7 @@ func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, r
 			} else {
 				//fmt.Printf("ms.Mes_type.len (nil): %v\n", len(ms.Mes_type))
 				if ms.Wind_timestamp != 0 {
-					wind := common.MapStr{
+					wind := mapstr.M{
 						"moduleId":     moduleId,
 						"windAngle":    ms.Wind_angle,
 						"windStrength": ms.Wind_strength,
@@ -247,7 +247,7 @@ func (bt *Netatmobeat) TransformPublicData(data PublicData, regionName string, r
 					}
 					measures.Put("wind", wind)
 				} else if ms.Rain_timestamp != 0 {
-					rain := common.MapStr{
+					rain := mapstr.M{
 						"moduleId":   moduleId,
 						"timestamp":  ms.Rain_timestamp * 1000,
 						"rain_24h":   ms.Rain_24h,

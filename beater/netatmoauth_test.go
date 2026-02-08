@@ -1,4 +1,4 @@
-// +build !integration
+//go:build !integration
 
 package beater
 
@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -61,7 +60,7 @@ func TestInitializeTokenState_FromTokenFile(t *testing.T) {
 	}))
 	defer server.Close()
 
-	dir, err := ioutil.TempDir("", "auth-test")
+	dir, err := os.MkdirTemp("", "auth-test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -309,7 +308,7 @@ func TestRefreshAccessToken_FullFlow(t *testing.T) {
 	}))
 	defer server.Close()
 
-	dir, err := ioutil.TempDir("", "refresh-test")
+	dir, err := os.MkdirTemp("", "refresh-test")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,16 +1,15 @@
-// +build !integration
+//go:build !integration
 
 package beater
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
 func TestSaveAndLoadTokenFile(t *testing.T) {
-	dir, err := ioutil.TempDir("", "tokenstore-test")
+	dir, err := os.MkdirTemp("", "tokenstore-test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +52,7 @@ func TestSaveAndLoadTokenFile(t *testing.T) {
 }
 
 func TestSaveTokenFilePermissions(t *testing.T) {
-	dir, err := ioutil.TempDir("", "tokenstore-perm-test")
+	dir, err := os.MkdirTemp("", "tokenstore-perm-test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,14 +88,14 @@ func TestLoadTokenFileMissing(t *testing.T) {
 }
 
 func TestLoadTokenFileInvalidJSON(t *testing.T) {
-	dir, err := ioutil.TempDir("", "tokenstore-invalid-test")
+	dir, err := os.MkdirTemp("", "tokenstore-invalid-test")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(dir)
 
 	path := filepath.Join(dir, "tokens.json")
-	if err := ioutil.WriteFile(path, []byte("not json"), 0600); err != nil {
+	if err := os.WriteFile(path, []byte("not json"), 0600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -107,7 +106,7 @@ func TestLoadTokenFileInvalidJSON(t *testing.T) {
 }
 
 func TestSaveTokenFileOverwrite(t *testing.T) {
-	dir, err := ioutil.TempDir("", "tokenstore-overwrite-test")
+	dir, err := os.MkdirTemp("", "tokenstore-overwrite-test")
 	if err != nil {
 		t.Fatal(err)
 	}

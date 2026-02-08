@@ -144,6 +144,16 @@ output.elasticsearch:
   # Array of hosts to connect to.
   hosts: ["localhost:9200"]
 
+  # Route events to separate indices by data source so that the composable
+  # index templates (netatmobeat-publicdata-*, netatmobeat-stationdata-*) apply.
+  indices:
+    - index: "netatmobeat-publicdata-%{+yyyy.MM.dd}"
+      when.equals:
+        netatmo.source_type: "publicdata"
+    - index: "netatmobeat-stationdata-%{+yyyy.MM.dd}"
+      when.equals:
+        netatmo.source_type: "stationdata"
+
   # Protocol - either `http` (default) or `https`.
   #protocol: "https"
 
@@ -209,7 +219,13 @@ processors:
 # uncomment the following line.
 #monitoring.elasticsearch:
 
-#================================= Migration ==================================
+#========================= ES 9.x Compatibility ==============================
 
-# This allows to enable 6.7 migration aliases
-#migration.6_to_7.enabled: true
+# Disable libbeat's automatic index template and ILM management.
+# ES 9.x removed the legacy template API. Load composable templates manually:
+#   curl -X PUT "localhost:9200/_index_template/netatmobeat-publicdata" \
+#     -H 'Content-Type: application/json' -d @netatmobeat.template.publicdata.json
+#   curl -X PUT "localhost:9200/_index_template/netatmobeat-stationdata" \
+#     -H 'Content-Type: application/json' -d @netatmobeat.template.stastiondata.json
+setup.template.enabled: false
+setup.ilm.enabled: false

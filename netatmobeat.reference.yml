@@ -374,6 +374,17 @@ output.elasticsearch:
   # Number of workers per Elasticsearch host.
   #worker: 1
 
+  # Route events to separate indices by data source so that the composable
+  # index templates (netatmobeat-publicdata-*, netatmobeat-stationdata-*) apply.
+  # Each event carries netatmo.source_type ("publicdata" or "stationdata").
+  indices:
+    - index: "netatmobeat-publicdata-%{+yyyy.MM.dd}"
+      when.equals:
+        netatmo.source_type: "publicdata"
+    - index: "netatmobeat-stationdata-%{+yyyy.MM.dd}"
+      when.equals:
+        netatmo.source_type: "stationdata"
+
   # Optional index name. The default is "netatmobeat" plus date
   # and generates [netatmobeat-]YYYY.MM.DD keys.
   # In case you modify this pattern you must update setup.template.name and setup.template.pattern accordingly.
@@ -962,7 +973,8 @@ output.elasticsearch:
 # These settings can be adjusted to load your own template or overwrite existing ones.
 
 # Set to false to disable template loading.
-#setup.template.enabled: true
+# ES 9.x removed the legacy template API — must be disabled.
+setup.template.enabled: false
 
 # Template name. By default the template name is "netatmobeat-%{[agent.version]}"
 # The template name and pattern has to be set in case the Elasticsearch index pattern is modified.
@@ -1021,7 +1033,8 @@ setup.template.settings:
 # Enable ILM support. Valid values are true, false, and auto. When set to auto
 # (the default), the Beat uses index lifecycle management when it connects to a
 # cluster that supports ILM; otherwise, it creates daily indices.
-#setup.ilm.enabled: auto
+# ES 9.x removed the legacy ILM API — must be disabled.
+setup.ilm.enabled: false
 
 # Set the prefix used in the index lifecycle write alias name. The default alias
 # name is 'netatmobeat-%{[agent.version]}'.
@@ -1321,7 +1334,3 @@ logging.files:
 # Enable or disable seccomp system call filtering on Linux. Default is enabled.
 #seccomp.enabled: true
 
-#================================= Migration ==================================
-
-# This allows to enable 6.7 migration aliases
-#migration.6_to_7.enabled: false
