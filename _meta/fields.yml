@@ -32,11 +32,19 @@
         - name: module_id
           type: keyword
           description: Module ID
+        - name: regionName
+          type: keyword
+          description: Region name
+        - name: regionDescripion
+          type: keyword
+          description: Region description
         - name: last_message
           type: date
+          format: epoch_second
           description: Last message
         - name: last_seen
           type: date
+          format: epoch_second
           description: Last seen
         - name: rf_status
           type: integer
@@ -174,13 +182,13 @@
           fields:
             - name: time_utc
               type: date
-              desctiption: Time of measurement in UTC
+              description: Time of measurement in UTC
             - name: temperature
               type: float
               description: Temperature
             - name: co2
               type: float
-              desxcription: CO2
+              description: CO2
             - name: humidity
               type: float
               description: Humidity
