@@ -315,11 +315,6 @@
             "netatmo.place.timezone",
             "netatmo.place.city",
             "netatmo.place.country",
-            "netatmo.publicdata.measures.temperature.moduleId",
-            "netatmo.publicdata.measures.humidity.moduleId",
-            "netatmo.publicdata.measures.pressure.moduleId",
-            "netatmo.publicdata.measures.rain.moduleId",
-            "netatmo.publicdata.measures.wind.moduleId",
             "netatmo.stationdata.temp_trend",
             "netatmo.stationdata.pressure_trend",
             "fields.*"
@@ -1512,9 +1507,6 @@
               "type": "date",
               "format": "epoch_second||epoch_millis||strict_date_optional_time"
             },
-            "mark": {
-              "type": "short"
-            },
             "module_id": {
               "ignore_above": 1024,
               "type": "keyword"
@@ -1542,99 +1534,6 @@
                 "timezone": {
                   "ignore_above": 1024,
                   "type": "keyword"
-                }
-              }
-            },
-            "publicdata": {
-              "properties": {
-                "measures": {
-                  "properties": {
-                    "humidity": {
-                      "properties": {
-                        "moduleId": {
-                          "ignore_above": 1024,
-                          "type": "keyword"
-                        },
-                        "timestamp": {
-                          "type": "date"
-                        },
-                        "value": {
-                          "type": "float"
-                        }
-                      }
-                    },
-                    "pressure": {
-                      "properties": {
-                        "moduleId": {
-                          "ignore_above": 1024,
-                          "type": "keyword"
-                        },
-                        "timestamp": {
-                          "type": "date"
-                        },
-                        "value": {
-                          "type": "float"
-                        }
-                      }
-                    },
-                    "rain": {
-                      "properties": {
-                        "moduleId": {
-                          "ignore_above": 1024,
-                          "type": "keyword"
-                        },
-                        "rain_24h": {
-                          "type": "float"
-                        },
-                        "rain_60min": {
-                          "type": "float"
-                        },
-                        "rain_live": {
-                          "type": "float"
-                        },
-                        "timestamp": {
-                          "type": "date"
-                        }
-                      }
-                    },
-                    "temperature": {
-                      "properties": {
-                        "moduleId": {
-                          "ignore_above": 1024,
-                          "type": "keyword"
-                        },
-                        "timestamp": {
-                          "type": "date"
-                        },
-                        "value": {
-                          "type": "float"
-                        }
-                      }
-                    },
-                    "wind": {
-                      "properties": {
-                        "gustAngle": {
-                          "type": "float"
-                        },
-                        "gustStrength": {
-                          "type": "float"
-                        },
-                        "moduleId": {
-                          "ignore_above": 1024,
-                          "type": "keyword"
-                        },
-                        "timestamp": {
-                          "type": "date"
-                        },
-                        "windAngle": {
-                          "type": "float"
-                        },
-                        "windStrength": {
-                          "type": "float"
-                        }
-                      }
-                    }
-                  }
                 }
               }
             },

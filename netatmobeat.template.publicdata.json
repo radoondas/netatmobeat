@@ -308,10 +308,6 @@
             "jolokia.url",
             "netatmo.station_id",
             "netatmo.source_type",
-            "netatmo.station_type",
-            "netatmo.module_name",
-            "netatmo.station_name",
-            "netatmo.module_id",
             "netatmo.place.timezone",
             "netatmo.place.city",
             "netatmo.place.country",
@@ -322,8 +318,6 @@
             "netatmo.publicdata.measures.pressure.moduleId",
             "netatmo.publicdata.measures.rain.moduleId",
             "netatmo.publicdata.measures.wind.moduleId",
-            "netatmo.stationdata.temp_trend",
-            "netatmo.stationdata.pressure_trend",
             "fields.*"
           ]
         },
@@ -1500,30 +1494,8 @@
         },
         "netatmo": {
           "properties": {
-            "battery_percent": {
-              "type": "long"
-            },
-            "battery_vp": {
-              "type": "long"
-            },
-            "last_message": {
-              "type": "date",
-              "format": "epoch_second||epoch_millis||strict_date_optional_time"
-            },
-            "last_seen": {
-              "type": "date",
-              "format": "epoch_second||epoch_millis||strict_date_optional_time"
-            },
             "mark": {
               "type": "short"
-            },
-            "module_id": {
-              "ignore_above": 1024,
-              "type": "keyword"
-            },
-            "module_name": {
-              "ignore_above": 1024,
-              "type": "keyword"
             },
             "place": {
               "properties": {
@@ -1648,9 +1620,6 @@
                 }
               }
             },
-            "rf_status": {
-              "type": "long"
-            },
             "source_type": {
               "ignore_above": 1024,
               "type": "keyword"
@@ -1658,59 +1627,6 @@
             "station_id": {
               "ignore_above": 1024,
               "type": "keyword"
-            },
-            "station_name": {
-              "ignore_above": 1024,
-              "type": "keyword"
-            },
-            "station_type": {
-              "ignore_above": 1024,
-              "type": "keyword"
-            },
-            "stationdata": {
-              "properties": {
-                "absolutePressure": {
-                  "type": "float"
-                },
-                "co2": {
-                  "type": "float"
-                },
-                "date_max_temp": {
-                  "type": "date"
-                },
-                "date_min_temp": {
-                  "type": "date"
-                },
-                "humidity": {
-                  "type": "float"
-                },
-                "max_temp": {
-                  "type": "float"
-                },
-                "min_temp": {
-                  "type": "float"
-                },
-                "noise": {
-                  "type": "float"
-                },
-                "pressure": {
-                  "type": "float"
-                },
-                "pressure_trend": {
-                  "ignore_above": 1024,
-                  "type": "keyword"
-                },
-                "temp_trend": {
-                  "ignore_above": 1024,
-                  "type": "keyword"
-                },
-                "temperature": {
-                  "type": "float"
-                },
-                "time_utc": {
-                  "type": "date"
-                }
-              }
             }
           }
         },
