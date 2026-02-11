@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (without v prefix, e.g. 8.19.11-rc1)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Install nfpm
+        run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.41.1
+
+      - name: Resolve version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+          fi
+
+      - name: Build all platforms
+        run: BEAT_VERSION=$VERSION ./scripts/build.sh
+
+      - name: Package all formats
+        run: BEAT_VERSION=$VERSION ./scripts/package.sh
+
+      - name: Verify artifacts
+        run: ./scripts/verify-assets.sh $VERSION
+
+      # Docker setup (QEMU for arm64 emulation, Buildx for multi-arch, login for push)
+      - uses: docker/setup-qemu-action@v3
+        if: startsWith(github.ref, 'refs/tags/')
+
+      - uses: docker/setup-buildx-action@v3
+        if: startsWith(github.ref, 'refs/tags/')
+
+      - uses: docker/login-action@v3
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Compute Docker tags
+        if: startsWith(github.ref, 'refs/tags/')
+        id: docker-tags
+        run: |
+          TAG="radoondas/netatmobeat:${{ github.ref_name }}"
+          # Only push :latest for stable releases (no hyphen = no prerelease suffix)
+          if [[ "${{ github.ref_name }}" != *-* ]]; then
+            TAG="$TAG,radoondas/netatmobeat:latest"
+          fi
+          echo "tags=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Docker buildx (multi-arch)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.docker-tags.outputs.tags }}
+          push: true
+
+      # GitHub Release LAST — only after all artifacts are built successfully
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/*.tar.gz
+            dist/*.tar.gz.sha512
+            dist/*.zip
+            dist/*.zip.sha512
+            dist/*.deb
+            dist/*.deb.sha512
+            dist/*.rpm
+            dist/*.rpm.sha512

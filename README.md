@@ -10,9 +10,13 @@ The beat is able to pull data from public API and index them in to Elasticsearch
 To start working with netatmobeat you need to have an account at Netatmo [DEV](https://dev.netatmo.com) to be able to access API. Once you are signed in, configure new [App](https://dev.netatmo.com/myaccount/createanapp) to be able to connect to dev API. 
 
 ## Installation
-Download and install appropriate package for your system. Check release [page](https://github.com/radoondas/netatmobeat/releases) for latest packages.
 
-For docker image `docker pull radoondas/netatmobeat`
+Download the appropriate package for your system from the [releases page](https://github.com/radoondas/netatmobeat/releases). Packages are available for:
+- **Linux** (amd64, arm64): tar.gz, deb, rpm
+- **macOS** (amd64, arm64): tar.gz
+- **Windows** (amd64): zip
+
+Docker (multi-arch): `docker pull radoondas/netatmobeat`
 
 ## Authentication
 
@@ -141,6 +145,24 @@ Authentication is validated at startup — the beat exits immediately with a cle
 ./netatmobeat -c netatmobeat.yml -e
 ```
 
+## Index Templates (Required Before First Run)
+
+Netatmobeat requires **composable index templates** to be loaded into Elasticsearch before the first run. The templates define field mappings for proper data types (geo_point, date with epoch_second format, etc.).
+
+Load the templates into your cluster:
+
+```bash
+curl -X PUT -u elastic "localhost:9200/_index_template/netatmobeat-publicdata" \
+  -H 'Content-Type: application/json' -d @netatmobeat.template.publicdata.json
+
+curl -X PUT -u elastic "localhost:9200/_index_template/netatmobeat-stationdata" \
+  -H 'Content-Type: application/json' -d @netatmobeat.template.stastiondata.json
+```
+
+If using API keys or Elastic Cloud, adjust authentication accordingly (e.g., `-H "Authorization: ApiKey id:api_key"`).
+
+The default config disables libbeat's automatic template and ILM management (`setup.template.enabled: false`, `setup.ilm.enabled: false`). The templates use the composable `_index_template` API, compatible with Elasticsearch 8.x and 9.x.
+
 ## Run
 
 ```
@@ -151,20 +173,6 @@ Authentication is validated at startup — the beat exits immediately with a cle
 This is an example of temperature visualisation
 
 ![Map](docs/img/map_vis.png)
-
-## Elasticsearch 9.x Compatibility
-
-Netatmobeat ships with **composable index templates** compatible with ES 9.x (which removed the legacy `_template` API). Load them before first run:
-
-```bash
-curl -X PUT "localhost:9200/_index_template/netatmobeat-publicdata" \
-  -H 'Content-Type: application/json' -d @netatmobeat.template.publicdata.json
-
-curl -X PUT "localhost:9200/_index_template/netatmobeat-stationdata" \
-  -H 'Content-Type: application/json' -d @netatmobeat.template.stastiondata.json
-```
-
-The default config disables libbeat's automatic template and ILM management (`setup.template.enabled: false`, `setup.ilm.enabled: false`) since the beat targets ES 9.x.
 
 ## Build
 

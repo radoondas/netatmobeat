@@ -40,11 +40,9 @@
           description: Region description
         - name: last_message
           type: date
-          format: epoch_second
           description: Last message
         - name: last_seen
           type: date
-          format: epoch_second
           description: Last seen
         - name: rf_status
           type: integer

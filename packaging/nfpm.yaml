@@ -1,0 +1,45 @@
+name: netatmobeat
+arch: "${ARCH}"
+version: "${VERSION}"
+maintainer: "radoondas"
+description: "Elastic Beat for Netatmo weather data"
+vendor: "radoondas"
+homepage: "https://github.com/radoondas/netatmobeat"
+license: "ASL 2.0"
+
+contents:
+  - src: ../dist/netatmobeat-${VERSION}-linux-${GOARCH}/netatmobeat
+    dst: /usr/share/netatmobeat/bin/netatmobeat
+    file_info:
+      mode: 0755
+
+  - src: ../netatmobeat.yml
+    dst: /etc/netatmobeat/netatmobeat.yml
+    type: config|noreplace
+    file_info:
+      mode: 0600
+
+  - src: ../netatmobeat.reference.yml
+    dst: /etc/netatmobeat/netatmobeat.reference.yml
+
+  - src: ../netatmobeat.template.publicdata.json
+    dst: /usr/share/netatmobeat/netatmobeat.template.publicdata.json
+
+  - src: ../netatmobeat.template.stastiondata.json
+    dst: /usr/share/netatmobeat/netatmobeat.template.stastiondata.json
+
+  - src: ../fields.yml
+    dst: /usr/share/netatmobeat/fields.yml
+
+  - src: ../LICENSE.txt
+    dst: /usr/share/netatmobeat/LICENSE.txt
+
+  - src: ../NOTICE.txt
+    dst: /usr/share/netatmobeat/NOTICE.txt
+
+  - src: netatmobeat.service
+    dst: /lib/systemd/system/netatmobeat.service
+
+scripts:
+  postinstall: postinst.sh
+  preremove: prerm.sh

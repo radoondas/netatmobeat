@@ -214,7 +214,7 @@ func (bt *Netatmobeat) TransformStationData(data StationsData) []mapstr.M {
 
 	modulesMeasurements := []mapstr.M{}
 
-	for d, device := range data.Body.Devices {
+	for _, device := range data.Body.Devices {
 		//logp.NewLogger(selector).Debug("Device data: ", device)
 
 		// Dashboard data
@@ -248,7 +248,7 @@ func (bt *Netatmobeat) TransformStationData(data StationsData) []mapstr.M {
 
 		modulesMeasurements = append(modulesMeasurements, measureMainUnit)
 
-		for _, module := range data.Body.Devices[d].Modules {
+		for _, module := range device.Modules {
 			//logp.NewLogger(selector).Debug("Module data: ", module)
 
 			ddm := mapstr.M{

@@ -33,6 +33,22 @@ For a quick auth check without running indefinitely, start the beat, wait for th
 
 ## Common Operations
 
+### Setting up index templates (required before first run)
+
+Netatmobeat requires composable index templates to be loaded into Elasticsearch before indexing data. Without templates, date fields (e.g., `last_message`, `last_seen`) and geo_point fields will not be mapped correctly.
+
+```bash
+curl -X PUT -u elastic "localhost:9200/_index_template/netatmobeat-publicdata" \
+  -H 'Content-Type: application/json' -d @netatmobeat.template.publicdata.json
+
+curl -X PUT -u elastic "localhost:9200/_index_template/netatmobeat-stationdata" \
+  -H 'Content-Type: application/json' -d @netatmobeat.template.stastiondata.json
+```
+
+Adjust the URL and authentication for your environment (e.g., HTTPS, API keys, Elastic Cloud).
+
+The template files are included in the release package. You only need to load them once per cluster (or again after template changes in a new release).
+
 ### First-time bootstrap (obtaining a refresh token)
 
 1. Go to [https://dev.netatmo.com/apps/](https://dev.netatmo.com/apps/) and select your application

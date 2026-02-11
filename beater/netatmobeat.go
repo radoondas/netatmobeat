@@ -207,6 +207,9 @@ func (bt *Netatmobeat) Run(b *beat.Beat) error {
 		for _, region := range bt.config.PublicWeather.Regions {
 			logp.NewLogger(selector).Info("* Region: ", region.Name, " Enabled: ", region.Enabled)
 			if region.Enabled {
+				if err := region.Validate(); err != nil {
+					return fmt.Errorf("invalid region config: %v", err)
+				}
 				go func(region config.Region) {
 					ticker := time.NewTicker(bt.config.PublicWeather.Period)
 					defer ticker.Stop()

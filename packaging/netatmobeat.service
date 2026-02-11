@@ -1,0 +1,17 @@
+[Unit]
+Description=Netatmobeat - Elastic Beat for Netatmo weather data
+Documentation=https://github.com/radoondas/netatmobeat
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=netatmobeat
+Group=netatmobeat
+ExecStart=/usr/share/netatmobeat/bin/netatmobeat -c /etc/netatmobeat/netatmobeat.yml -e
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

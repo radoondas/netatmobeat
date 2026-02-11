@@ -88,8 +88,14 @@ func (bt *Netatmobeat) GetRegionData(region config.Region) error {
 
 	ts := time.Now()
 	for _, data := range transformedData {
-		hash, _ := hashstructure.Hash(data, nil)
-		myid := strconv.FormatUint(hash, 10)
+		hash, err := hashstructure.Hash(data, nil)
+		var myid string
+		if err != nil {
+			logp.NewLogger(selector).Warn("Hash calculation failed, using timestamp fallback: ", err)
+			myid = strconv.FormatInt(ts.UnixNano(), 10)
+		} else {
+			myid = strconv.FormatUint(hash, 10)
+		}
 
 		event := beat.Event{
 			Meta: mapstr.M{

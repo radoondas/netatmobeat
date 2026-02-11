@@ -14,3 +14,4 @@ netatmobeat-tokens.json
 CLAUDE.md
 /.gocache/
 /.gomodcache/
+/dist/

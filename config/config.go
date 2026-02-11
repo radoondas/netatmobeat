@@ -3,7 +3,10 @@
 
 package config
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Config struct {
 	ClientId     string `config:"client_id"`
@@ -39,6 +42,17 @@ type Region struct {
 	LonNe       float64 `config:"lon_ne"`
 	LatSw       float64 `config:"lat_sw"`
 	LonSw       float64 `config:"lon_sw"`
+}
+
+// Validate checks the configuration for common errors.
+func (r Region) Validate() error {
+	if r.LatNe <= r.LatSw {
+		return fmt.Errorf("region %q: lat_ne (%f) must be greater than lat_sw (%f)", r.Name, r.LatNe, r.LatSw)
+	}
+	if r.LonNe <= r.LonSw {
+		return fmt.Errorf("region %q: lon_ne (%f) must be greater than lon_sw (%f)", r.Name, r.LonNe, r.LonSw)
+	}
+	return nil
 }
 
 var DefaultConfig = Config{
